@@ -54,8 +54,9 @@ interface Inquirer {
 	*           Метки имеют вид {0}, {1}, ... {n}
 	* $values - список значений для заполнения, порядковый номер
 	*           в списке соответствует номеру метки.
+	* $first_only - первое поле является и ключем и значением
 	*/
-	public function combine(string $query, array $value=[]): array;
+	public function combine(string $query, array $value=[], bool $first_only = false): array;
 
 	/**
 	* Вернуть результат SQL запроса в виде двумерного массива.

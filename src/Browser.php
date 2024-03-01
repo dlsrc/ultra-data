@@ -121,12 +121,6 @@ abstract class Browser implements Inquirer {
 
 	/**
 	* Подготовка соединения и запроса к выполнению.
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return string
 	*/
 	private function prepare(string $query, array $var, bool $unbuf = false, bool $suba = false): bool {
 		$this->connector->correct($this->state);
@@ -175,12 +169,6 @@ abstract class Browser implements Inquirer {
 	/**
 	* Вернуть результат SQL запроса в виде двумерного массива.
 	* Массивы первого и второго измерения имеют числовую индексацию.
-	* @param string query - строка SQL запроса, возможно имеющая метки
-	*                       для заполнения переменными.
-	*                       Метки имеют вид {0}, {1}, ... {n}
-	* @param array values - список значений для заполнения, порядковый номер
-	*                       в списке соответствует номеру метки.
-	* @return array[int][int]
 	*/
 	public function rows(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
@@ -201,12 +189,6 @@ abstract class Browser implements Inquirer {
 	* Вернуть результат SQL запроса в виде двумерного массива.
 	* Массивы первого измерения имеют числовую индексацию,
 	* индексы второго ассоциированы с именами столбцов, указанными в запросе.
-	* @param string query - строка SQL запроса, возможно имеющая метки
-	*                       для заполнения переменными.
-	*                       Метки имеют вид {0}, {1}, ... {n}
-	* @param array values - список значений для заполнения, порядковый номер
-	*                       в списке соответствует номеру метки.
-	* @return array[int][char]
 	*/
 	public function assoc(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
@@ -226,14 +208,8 @@ abstract class Browser implements Inquirer {
 	/**
 	* Вернуть комбинацию двух полей в виде массива, при этом первое поле будет
 	* являться ключем массива, второе соответствующим значением.
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return array
 	*/
-	public function combine(string $query, array $value = []): array {
+	public function combine(string $query, array $value = [], bool $first_only = false): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
 		}
@@ -241,7 +217,7 @@ abstract class Browser implements Inquirer {
 		$data = [];
 
 		if ($row = $this->sqlFetchRow()) {
-			if (\array_key_exists(1, $row)) {
+			if (!$first_only && \array_key_exists(1, $row)) {
 				$data[$row[0]] = $row[1];
 
 				while ($row = $this->sqlFetchRow()) {
@@ -263,12 +239,6 @@ abstract class Browser implements Inquirer {
 
 	/**
 	* Вернуть колонку (список значений одного поля)
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return array
 	*/
 	public function column(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
@@ -326,14 +296,6 @@ abstract class Browser implements Inquirer {
 	*
 	*    ...............................................
 	* )
-	*
-	*
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return array[mixed][char]
 	*/
 	public function slice(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
@@ -485,14 +447,6 @@ abstract class Browser implements Inquirer {
 	* выборки (соответственно значения в таком столбце должны быть уникальны,
 	* иначе будет возвращаться последняя строка, array_unique наоборот),
 	* индексы второго ассоциированы с порядком столбцов, указанных в запросе.
-	* @param int column   - номер столбца из выборки значениями которого
-	*                       индексирован массив строк.
-	* @param string query - строка SQL запроса, возможно имеющая метки
-	*                       для заполнения переменными.
-	*                       Метки имеют вид {0}, {1}, ... {n}
-	* @param array values - список значений для заполнения, порядковый номер
-	*                       в списке соответствует номеру метки.
-	* @return array[mixed][int]
 	*/
 	public function table(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
@@ -515,12 +469,6 @@ abstract class Browser implements Inquirer {
 	* выборки (соответственно значения в таком столбце должны быть уникальны,
 	* иначе будет возвращаться последняя строка, array_unique наоборот),
 	* индексы второго ассоциированы с именами столбцов, указанными в запросе.
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return array[mixed][char]
 	*/
 	public function view(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
@@ -544,13 +492,6 @@ abstract class Browser implements Inquirer {
 
 	/**
 	* Вернуть массив результата SQL запроса (первую строку запроса)
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @param int type      - тип индексации результирующей выборки.
-	* @return string
 	*/
 	public function row(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
@@ -568,12 +509,6 @@ abstract class Browser implements Inquirer {
 
 	/**
 	* Вернуть единственный результат SQL запроса.
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return string
 	*/
 	public function result(string $query, array $value = []): string {
 		if (!$this->prepare($query, $value)) {
@@ -591,12 +526,6 @@ abstract class Browser implements Inquirer {
 
 	/** ?
 	* Выполнить INSERT SQL запрос, вернуть индекс последней вставленной записи
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return boolean
 	*//*
 	public function insert($query, array $value=array())
 	{
@@ -605,12 +534,6 @@ abstract class Browser implements Inquirer {
 
 	/**
 	* Выполнить SQL запрос.
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return boolean
 	*/
 	public function run(string $query, array $value = [], bool $suba = false) {
 		return $this->prepare($query, $value, true, $suba);
@@ -618,12 +541,6 @@ abstract class Browser implements Inquirer {
 
 	/**
 	* Выполнить SQL запрос, вернуть количество рядов затронутое запросом.
-	* @param string query  - строка SQL запроса, возможно имеющая метки
-	*                        для заполнения переменными.
-	*                        Метки имеют вид {0}, {1}, ... {n}
-	* @param array values  - список значений для заполнения, порядковый номер
-	*                        в списке соответствует номеру метки.
-	* @return int
 	*/
 	public function affect(string $query, array $value = [], bool $suba=false): int {
 		if (!$this->prepare($query, $value, false, $suba)) {
