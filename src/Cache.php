@@ -44,8 +44,8 @@ abstract class Cache implements Caching {
 
 		if (!isset(self::$cache[$id])) {
 			switch (get_class($config)) {
-			case __NAMESPACE__.'\memcache\Config':
-				$class = __NAMESPACE__.'\memcache\Cache';
+			case namespace\Memcache\Config::class:
+				$class = namespace\Memcache\Cache::class;
 				break;
 
 			default:

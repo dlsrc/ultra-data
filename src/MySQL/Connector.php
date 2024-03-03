@@ -35,6 +35,7 @@ final class Connector extends Source {
 		}
 
 		try {
+			$this->conn->set_charset($state['charset']);
 			$this->conn->select_db($state['database']);
 		}
 		catch (Throwable) {

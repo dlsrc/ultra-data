@@ -82,16 +82,16 @@ abstract class Browser implements Inquirer {
 
 		if (!isset(self::$browser[$id])) {
 			switch (\get_class($config)) {
-			case namespace\mysql\Config::class:
-				$class = namespace\mysql\Browser::class;
+			case namespace\MySQL\Config::class:
+				$class = namespace\MySQL\Browser::class;
 				break;
 
-			case namespace\pgsql\Config::class:
-				$class = namespace\pgsql\Browser::class;
+			case namespace\PgSQL\Config::class:
+				$class = namespace\PgSQL\Browser::class;
 				break;	
 
-			case namespace\sqlite\Config::class:
-				$class = namespace\sqlite\Browser::class;
+			case namespace\SQLite\Config::class:
+				$class = namespace\SSQLite\Browser::class;
 				break;
 
 			default:
