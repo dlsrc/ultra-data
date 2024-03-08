@@ -6,10 +6,12 @@
  */
 namespace Ultra\Data;
 
+use Ultra\Generic\Called;
+
 /**
 * Интерфейс конфигурации подключения к источнику данных.
 */
-interface Configurable {
+interface Configurable extends Called {
 	/**
 	* Вернуть сторку идентифицирующую поставщика данных.
 	*/

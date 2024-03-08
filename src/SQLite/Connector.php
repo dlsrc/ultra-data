@@ -44,11 +44,11 @@ final class Connector extends Source {
 			}
 		}
 		catch (Exception $e) {
-			$error = Error::log($e->getMessge(), Code::Connect);
+			$error = Error::log($e->getMessage(), Code::Connect);
 			$this->conn = $error->id;
 		}
 		catch (InternalError $e) {
-			$error = Error::log($e->getMessge(), Code::Connect);
+			$error = Error::log($e->getMessage(), Code::Connect);
 			$this->conn = $error->id;
 		}
 	}

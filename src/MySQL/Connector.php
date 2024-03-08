@@ -20,10 +20,6 @@ final class Connector extends Source {
 
 	/**
 	* Проверить установлено или нет соединение с источником доанных.
-	* @final
-	* @access public
-	* @param array state
-	* @return boolean
 	*/
 	protected function isConnect(): bool {
 		return (is_object($this->conn) && !$this->conn->connect_error);
@@ -41,23 +37,23 @@ final class Connector extends Source {
 		catch (Throwable) {
 			if (1049 == $this->conn->errno && $state['create']) {
 				if (!$this->conn->query('SET CHARACTER SET '.$state['charset'])) {
-					Error::log($this->getError($this->conn), Code::State);
+					Error::log($this->conn->error, Code::State);
 					return false;
 				}
 
 				if (!$this->conn->query('CREATE DATABASE `'.$state['database'].'` DEFAULT CHARACTER SET '.$state['charset'])) {
-					Error::log($this->getError($this->conn), Code::State);
+					Error::log($this->conn->error, Code::State);
 					return false;
 				}
 				elseif (!$this->conn->select_db($state['database'])) {
-					Error::log($this->getError($this->conn), Code::State);
+					Error::log($this->conn->error, Code::State);
 					return false;
 				}
 			}
 		}
 		finally {
 			if (!$this->conn->query('SET CHARACTER SET '.$state['charset'])) {
-				Error::log($this->getError($this->conn), Code::State);
+				Error::log($this->conn->error, Code::State);
 				return false;
 			}
 		}

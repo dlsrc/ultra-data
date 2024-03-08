@@ -30,15 +30,15 @@ final class Config extends Container implements Configurable, Adjustable {
 		$this->_property['mark']     = '~';
 
 		// Опции алиасы
-		$this->_property['h']        =&$this->_property['host'];
-		$this->_property['server']   =&$this->_property['host'];
-		$this->_property['u']        =&$this->_property['user'];
-		$this->_property['uid']      =&$this->_property['user'];
-		$this->_property['p']        =&$this->_property['password'];
-		$this->_property['pwd']      =&$this->_property['password'];
-		$this->_property['pass']     =&$this->_property['password'];
-		$this->_property['db']       =&$this->_property['dbname'];
-		$this->_property['database'] =&$this->_property['dbname'];
+		$this->_property['h']        = &$this->_property['host'];
+		$this->_property['server']   = &$this->_property['host'];
+		$this->_property['u']        = &$this->_property['user'];
+		$this->_property['uid']      = &$this->_property['user'];
+		$this->_property['p']        = &$this->_property['password'];
+		$this->_property['pwd']      = &$this->_property['password'];
+		$this->_property['pass']     = &$this->_property['password'];
+		$this->_property['db']       = &$this->_property['dbname'];
+		$this->_property['database'] = &$this->_property['dbname'];
 
 	}
 

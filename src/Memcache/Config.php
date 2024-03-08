@@ -15,8 +15,8 @@ final class Config extends Container implements Configurable {
 		$this->_property['host'] = 'localhost';
 		$this->_property['port'] = '11211';
 		// Опции алиасы
-		$this->_property['h'] =&$this->_property['host'];
-		$this->_property['p'] =&$this->_property['port'];
+		$this->_property['h'] = &$this->_property['host'];
+		$this->_property['p'] = &$this->_property['port'];
 	}
 
 	public function getProviderId(): string {

@@ -91,7 +91,7 @@ abstract class Browser implements Inquirer {
 				break;	
 
 			case namespace\SQLite\Config::class:
-				$class = namespace\SSQLite\Browser::class;
+				$class = namespace\SQLite\Browser::class;
 				break;
 
 			default:
@@ -107,7 +107,7 @@ abstract class Browser implements Inquirer {
 			$reset = true;
 		}
 
-		if ($reset) {
+		if ($reset && $config instanceof Adjustable) {
 			$config->setPrefix(self::$browser[$id]);
 		}
 

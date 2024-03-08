@@ -9,7 +9,6 @@ namespace Ultra\Data\Memcache;
 use Memcache;
 use Ultra\Core;
 use Ultra\Error;
-use Ultra\IO;
 use Ultra\Data\Code;
 use Ultra\Data\Configurable;
 use Ultra\Data\Source;
@@ -36,8 +35,10 @@ final class Connector extends Source {
 	}
 
 	protected function registerError(): void {
+		$config = Config::get($this->csname());
+
 		Error::log(
-			Core::message('e_tcp_cache', $this->host.':'.$this->port),
+			Core::message('e_tcp_cache', $config->host.':'.$config->port),
 			Code::Tcp
 		);
 	}

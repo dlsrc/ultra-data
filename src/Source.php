@@ -6,7 +6,6 @@
  */
 namespace Ultra\Data;
 
-use Ultra\IO;
 use Ultra\Core;
 use Ultra\Error;
 
@@ -216,7 +215,7 @@ abstract class Source {
 	/**
 	* Вернуть интерфейс доступа к данным Ultra\Data\Сaching, либо NULL.
 	*/
-	final public static function cache(string $dsn): Сaching|null {
+	final public static function cache(string $dsn): Caching|null {
 		if (!$config = self::configure($dsn)) {
 			return NULL;
 		}

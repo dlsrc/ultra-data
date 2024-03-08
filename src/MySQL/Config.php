@@ -31,21 +31,21 @@ final class Config extends Container implements Configurable, Adjustable {
 		$this->_property['mark']     = '~';
 
 		// Опции алиасы
-		$this->_property['h']      =&$this->_property['host'];
-		$this->_property['server'] =&$this->_property['host'];
-		$this->_property['u']      =&$this->_property['user'];
-		$this->_property['uid']    =&$this->_property['user'];
-		$this->_property['p']      =&$this->_property['password'];
-		$this->_property['pwd']    =&$this->_property['password'];
-		$this->_property['pass']   =&$this->_property['password'];
-		$this->_property['db']     =&$this->_property['database'];
-		$this->_property['dbname'] =&$this->_property['database'];
-		$this->_property['cs']     =&$this->_property['charset'];
-		$this->_property['pref']   =&$this->_property['prefix'];
-		$this->_property['px']     =&$this->_property['prefix'];
-		$this->_property['mk']     =&$this->_property['mark'];
-		$this->_property['l']      =&$this->_property['lang'];
-		$this->_property['err']    =&$this->_property['lang'];
+		$this->_property['h']      = &$this->_property['host'];
+		$this->_property['server'] = &$this->_property['host'];
+		$this->_property['u']      = &$this->_property['user'];
+		$this->_property['uid']    = &$this->_property['user'];
+		$this->_property['p']      = &$this->_property['password'];
+		$this->_property['pwd']    = &$this->_property['password'];
+		$this->_property['pass']   = &$this->_property['password'];
+		$this->_property['db']     = &$this->_property['database'];
+		$this->_property['dbname'] = &$this->_property['database'];
+		$this->_property['cs']     = &$this->_property['charset'];
+		$this->_property['pref']   = &$this->_property['prefix'];
+		$this->_property['px']     = &$this->_property['prefix'];
+		$this->_property['mk']     = &$this->_property['mark'];
+		$this->_property['l']      = &$this->_property['lang'];
+		$this->_property['err']    = &$this->_property['lang'];
 	}
 
 	public function getProviderId(): string {

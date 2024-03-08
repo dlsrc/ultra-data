@@ -25,13 +25,13 @@ final class Config extends Container implements Configurable, Adjustable {
 		$this->_property['mark']     = '~';
 
 		// Опции алиасы
-		$this->_property['db']     =&$this->_property['database'];
-		$this->_property['dbname'] =&$this->_property['database'];
-		$this->_property['file']   =&$this->_property['database'];
-		$this->_property['access'] =&$this->_property['mode'];
-		$this->_property['pref']   =&$this->_property['prefix'];
-		$this->_property['px']     =&$this->_property['prefix'];
-		$this->_property['mk']     =&$this->_property['mark'];
+		$this->_property['db']     = &$this->_property['database'];
+		$this->_property['dbname'] = &$this->_property['database'];
+		$this->_property['file']   = &$this->_property['database'];
+		$this->_property['access'] = &$this->_property['mode'];
+		$this->_property['pref']   = &$this->_property['prefix'];
+		$this->_property['px']     = &$this->_property['prefix'];
+		$this->_property['mk']     = &$this->_property['mark'];
 	}
 
 	public function getProviderId(): string {
