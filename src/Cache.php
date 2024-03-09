@@ -8,7 +8,6 @@ namespace Ultra\Data;
 
 use Ultra\Core;
 use Ultra\Error;
-use Ultra\IO;
 
 abstract class Cache implements Caching {
 	abstract protected function cacheAdd(string $key, mixed $value, int $flag = 0, int $expire = 0): bool;

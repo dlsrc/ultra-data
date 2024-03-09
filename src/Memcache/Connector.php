@@ -27,9 +27,14 @@ final class Connector extends Source {
 	}
 
 	protected function makeConnect(Configurable $config): void {
-		$this->conn = new Memcache;
+		if (extension_loaded('memcache')) {
+			$this->conn = new Memcache;
 
-		if ($this->conn->connect($config->host, $config->port)) {
+			if (!$this->conn->connect($config->host, $config->port)) {
+				$this->conn = false;
+			}
+		}
+		else {
 			$this->conn = false;
 		}
 	}

@@ -6,7 +6,6 @@
  */
 namespace Ultra\Data;
 
-use Ultra\IO;
 use Ultra\Core;
 use Ultra\Error;
 
