@@ -1,32 +1,59 @@
 <?php declare(strict_types=1);
-/**
- * (c) 2005-2024 Dmitry Lebedev <dl@adios.ru>
- * This source code is part of the Ultra data package.
- * Please see the LICENSE file for copyright and licensing information.
- */
+
 namespace Ultra\Data;
 
-use Ultra\Generic\Called;
+use Ultra\Fail;
 use Ultra\Generic\Mutable;
-use Ultra\Generic\Name;
-use Ultra\Generic\NamedGetter;
 use Ultra\Generic\Setter;
+use Ultra\Instance;
+use Ultra\State;
+
 /**
-* Интерфейс конфигурации подключения к источнику данных.
-*/
-abstract class Config implements Mutable, Called {
-	use Name;
-	use NamedGetter;
+ * Конфигурация связывает контракты поставщика данных и коннекторы,
+ * закрепляя их состояние доступа к данных, для конкретного контракта.
+ */
+abstract class Config implements Mutable, State {
+	use Instance;
 	use Setter;
 
-	protected function __construct(array $state = [], string $name = '') {
-		if ('' == $name) {
-			$this->_name = get_class($this);
-		}
-		else {
-			$this->_name = $name;
+	/**
+	 * Идентификатор поставщика данных.
+	 */
+	abstract public function getProviderId(): string;
+	//abstract public function getContractId(): string;
+	
+	/**
+	 * Идентификатор соединения, — строка параметров,
+	 * которых достаточно для подключения к источнику данных.
+	 */
+	abstract public function getConnectId(): string;
+	
+	/**
+	 * Идентификатор состояния соединения, — строка параметров,
+	 * которые требуются для доступа к данным внупри источника.
+	 */
+	abstract public function getStateId(): array;
+
+	private static array $_config = [];
+
+	protected function __construct(Source $source) {
+		$this->initialize();
+		$this->_property['name'] = $source->name;
+		$this->_property['type'] = $source->type;
+	}
+
+	public static function get(Source $src): State {
+		if (isset(self::$_config[$src->name])) {
+			return self::$_config[$src->name];
 		}
 
-		$this->initialize();
+		(self::$_config[$src->name] = match($src->type) {
+			'mysql', 'mariadb' => new namespace\MySQL\Config($src),
+			'pgsql' => new namespace\PgSQL\Config($src),
+			'sqlite' => new namespace\SQLite\Config($src),
+			default => new Fail(Status::NoConfiguration, 'No configuration for data source "'.$src->type.'"', __FILE__, __LINE__),
+		})->commit($src->configure(...));
+		
+		return self::$_config[$src->name];
 	}
 }

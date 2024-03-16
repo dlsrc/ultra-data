@@ -1,17 +1,10 @@
 <?php declare(strict_types=1);
-/**
- * (c) 2005-2024 Dmitry Lebedev <dl@adios.ru>
- * This source code is part of the Ultra data package.
- * Please see the LICENSE file for copyright and licensing information.
- */
+
 namespace Ultra\Data\PgSQL;
 
-use Ultra\Data\Adjustable;
-use Ultra\Data\Config as Container;
-use Ultra\Data\Configurable;
-use Ultra\Data\Inquirer;
+use Ultra\Data\Config as DataConfig;
 
-final class Config extends Container implements Configurable, Adjustable {
+final class Config extends DataConfig {
 	private const string DEFAULT_PORT = '5432';
 
 	protected function initialize(): void {
@@ -27,6 +20,7 @@ final class Config extends Container implements Configurable, Adjustable {
 		// Схема
 		$this->_property['schema']   = 'public';
 		// Метка по умолчанию для замены на префикс в строке запроса
+		$this->_property['prefix']   = '';
 		$this->_property['mark']     = '~';
 
 		// Опции алиасы
@@ -39,7 +33,9 @@ final class Config extends Container implements Configurable, Adjustable {
 		$this->_property['pass']     = &$this->_property['password'];
 		$this->_property['db']       = &$this->_property['dbname'];
 		$this->_property['database'] = &$this->_property['dbname'];
-
+		$this->_property['pref']     = &$this->_property['prefix'];
+		$this->_property['px']       = &$this->_property['prefix'];
+		$this->_property['mk']       = &$this->_property['mark'];
 	}
 
 	public function getProviderId(): string {
@@ -62,9 +58,5 @@ final class Config extends Container implements Configurable, Adjustable {
 		return [
 			'dbname' => $this->_property['dbname'],
 		];
-	}
-
-	public function setPrefix(Inquirer $inquirer): void {
-		$inquirer->prefix($this->_property['schema'].'.', $this->_property['mark']);
 	}
 }

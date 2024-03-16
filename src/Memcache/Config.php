@@ -4,12 +4,11 @@
  * This source code is part of the Ultra data package.
  * Please see the LICENSE file for copyright and licensing information.
  */
-namespace Ultra\Data\Memcache;
+namespace Ultra\DataProtorype\Memcache;
 
-use Ultra\Data\Config as Container;
-use Ultra\Data\Configurable;
+use Ultra\Data\Config as Cfg;
 
-final class Config extends Container implements Configurable {
+final class Config extends Cfg {
 	protected function initialize(): void {
 		// Опции подключения
 		$this->_property['host'] = 'localhost';

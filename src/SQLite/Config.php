@@ -1,17 +1,10 @@
 <?php declare(strict_types=1);
-/**
- * (c) 2005-2024 Dmitry Lebedev <dl@adios.ru>
- * This source code is part of the Ultra data package.
- * Please see the LICENSE file for copyright and licensing information.
- */
+
 namespace Ultra\Data\SQLite;
 
-use Ultra\Data\Adjustable;
-use Ultra\Data\Config as Container;
-use Ultra\Data\Configurable;
-use Ultra\Data\Inquirer;
+use Ultra\Data\Config as DataConfig;
 
-final class Config extends Container implements Configurable, Adjustable {
+final class Config extends DataConfig {
 	protected function initialize(): void {
 		// Опция выбора базы данных
 		$this->_property['database'] = 'test.db';
@@ -35,18 +28,14 @@ final class Config extends Container implements Configurable, Adjustable {
 	}
 
 	public function getProviderId(): string {
-		return '&db='.$this->_property['database'].'&mode='.$this->_property['mode'];
+		return 'db='.$this->_property['database'].' mode='.$this->_property['mode'];
 	}
 
 	public function getConnectId(): string {
-		return '&db='.$this->_property['database'].'&mode='.$this->_property['mode'];
+		return 'db='.$this->_property['database'].' mode='.$this->_property['mode'];
 	}
 
 	public function getStateId(): array {
 		return [true];
-	}
-
-	public function setPrefix(Inquirer $inquirer): void {
-		$inquirer->prefix($this->_property['prefix'], $this->_property['mark']);
 	}
 }

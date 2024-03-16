@@ -1,17 +1,10 @@
 <?php declare(strict_types=1);
-/**
- * (c) 2005-2024 Dmitry Lebedev <dl@adios.ru>
- * This source code is part of the Ultra data package.
- * Please see the LICENSE file for copyright and licensing information.
- */
+
 namespace Ultra\Data\MySQL;
 
-use Ultra\Data\Adjustable;
-use Ultra\Data\Config as Container;
-use Ultra\Data\Configurable;
-use Ultra\Data\Inquirer;
+use Ultra\Data\Config as DataConfig;
 
-final class Config extends Container implements Configurable, Adjustable {
+final class Config extends DataConfig {
 	protected function initialize(): void {
 		// Опции подключения
 		$this->_property['host']     = 'localhost';
@@ -51,17 +44,17 @@ final class Config extends Container implements Configurable, Adjustable {
 	public function getProviderId(): string {
 		return
 		'h='.$this->_property['host'].
-		'&u='.$this->_property['user'].
-		'&p='.$this->_property['password'].
-		'&db='.$this->_property['database'].
-		'&cs='.$this->_property['charset'];
+		' u='.$this->_property['user'].
+		' p='.$this->_property['password'].
+		' db='.$this->_property['database'].
+		' cs='.$this->_property['charset'];
 	}
 
 	public function getConnectId(): string {
 		return
 		'h='.$this->_property['host'].
-		'&u='.$this->_property['user'].
-		'&p='.$this->_property['password'];
+		' u='.$this->_property['user'].
+		' p='.$this->_property['password'];
 	}
 
 	public function getStateId(): array {
@@ -70,9 +63,5 @@ final class Config extends Container implements Configurable, Adjustable {
 			'charset'  => $this->_property['charset'],
 			'create'   => $this->_property['create']
 		];
-	}
-
-	public function setPrefix(Inquirer $inquirer): void {
-		$inquirer->prefix($this->_property['prefix'], $this->_property['mark']);
 	}
 }

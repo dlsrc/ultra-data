@@ -7,44 +7,30 @@
 namespace Ultra\Data\Memcache;
 
 use Memcache;
-use Ultra\Core;
-use Ultra\Error;
-use Ultra\Data\Code;
-use Ultra\Data\Configurable;
-use Ultra\Data\Source;
+use Ultra\Data\Config;
+use Ultra\Data\Connector as Connect;
+use Ultra\Data\Status;
+use Ultra\Fail;
 
-final class Connector extends Source {
-	public function getType(): string {
-		return 'memcache';
-	}
-
-	protected function isConnect(): bool {
-		return is_object($this->conn);
-	}
-
+final class Connector extends Connect {
 	protected function setState(array $state): bool {
 		return true;
 	}
 
-	protected function makeConnect(Configurable $config): void {
-		if (extension_loaded('memcache')) {
-			$this->conn = new Memcache;
-
-			if (!$this->conn->connect($config->host, $config->port)) {
-				$this->conn = false;
-			}
+	protected function makeConnect(Config $config): object|false {
+		if (!extension_loaded('memcache')) {
+			$this->error = new Fail(Status::ExtensionNotLoaded, 'Extension "Memcache" not loaded.', __FILE__, __LINE__);
+			return false;	
 		}
-		else {
-			$this->conn = false;
+
+		$connect = new Memcache;
+
+		if (!$connect->connect($config->host, $config->port)) {
+			$this->error = new Fail(Status::ConnectionRefused, 'Connection to memcach server '.$config->host.':'.$config->port.' refused', __FILE__, __LINE__);
+				
+			return false;
 		}
-	}
 
-	protected function registerError(): void {
-		$config = Config::get($this->csname());
-
-		Error::log(
-			Core::message('e_tcp_cache', $config->host.':'.$config->port),
-			Code::Tcp
-		);
+		return $connect;
 	}
 }

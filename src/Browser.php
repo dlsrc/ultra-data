@@ -1,63 +1,33 @@
 <?php declare(strict_types=1);
-/**
- * (c) 2005-2024 Dmitry Lebedev <dl@adios.ru>
- * This source code is part of the Ultra data package.
- * Please see the LICENSE file for copyright and licensing information.
- */
+
 namespace Ultra\Data;
 
-use Ultra\Core;
-use Ultra\Error;
+class Browser extends Provider {
+	public readonly SQL $driver;
+	protected string $mark;
+	protected string $prefix;
 
-abstract class Browser implements Inquirer {
-	abstract public function patch(string $field): string;
-	abstract protected function sqlAffected(): int;
-	abstract protected function sqlErrno(): int;
-	abstract protected function sqlError(): string;
-	abstract protected function sqlEscape(string $string): string;
-	abstract protected function sqlFetchArray(): array|null|false;
-	abstract protected function sqlFetchAssoc(): array|null|false;
-	abstract protected function sqlFetchRow(): array|null|false;
-	abstract protected function sqlFree(): void;
-	abstract protected function sqlInsertId(): int;
-	abstract protected function sqlNumFields(): int;
-	abstract protected function sqlNumRows(): int;
-	abstract protected function sqlQuery(string $query): object|bool;
-	abstract protected function sqlResult(): string;
-	abstract protected function sqlUquery(string $query): object|bool;
-
-	private static array $browser = [];
-	protected object $connect;
-	protected object|bool $result;
-	protected Source $connector;
-	private array $state;
-	private string $pref;
-	private string $mark;
-
-	protected function __construct(Source $connector) {
-		$this->connector = $connector;
-		$this->state     = $connector->getState();
-		$this->connect   = $connector->getConnect();
-		$this->result    = false;
-		$this->pref      = '';
-		$this->mark      = '';
+	protected function setup(Config $config, Driver $driver) {
+		$this->driver = $driver;
+		$this->mark   = $config->mark;
+		$this->prefix = $config->prefix;
 	}
 
 	public function esc(string $string): string {
-		return $this->sqlEscape($string);
+		return $this->driver->escape($this->connector, $string);
 	}
 
 	public function in(array $value, string $or_field=''): string {
 		if ('' == $or_field) {
 			foreach ($value as &$val) {
-				$val = $this->sqlEscape((string) $val);
+				$val = $this->driver->escape($this->connector, (string) $val);
 			}
 
 			return ' IN("'.implode('", "', $value).'") ';
 		}
 		else {
 			foreach ($value as &$val) {
-				$val = ' `'.$or_field.'` = "'.$this->sqlEscape((string) $val).'" ';
+				$val = ' `'.$or_field.'` = "'.$this->driver->escape($this->connector, (string) $val).'" ';
 			}
 
 			return implode('OR', $value);
@@ -68,64 +38,18 @@ abstract class Browser implements Inquirer {
 		return $this->in(array_keys($value), $or_field);
 	}
 
-	public static function make(Configurable $config, bool $reset): Inquirer|null {
-		if (!$connect = Source::connect($config)) {
-			return NULL;
-		}
-
-		if (!$connect->correct($config->getStateId())) {
-			return NULL;
-		}
-
-		$id = $config->getProviderId();
-
-		if (!isset(self::$browser[$id])) {
-			switch (get_class($config)) {
-			case namespace\MySQL\Config::class:
-				$class = namespace\MySQL\Browser::class;
-				break;
-
-			case namespace\PgSQL\Config::class:
-				$class = namespace\PgSQL\Browser::class;
-				break;	
-
-			case namespace\SQLite\Config::class:
-				$class = namespace\SQLite\Browser::class;
-				break;
-
-			default:
-				Error::log(
-					Core::message('e_db_browser', get_class($config)),
-					Code::Browser
-				);
-
-				return NULL;
-			}
-
-			self::$browser[$id] = new $class($connect);
-			$reset = true;
-		}
-
-		if ($reset && $config instanceof Adjustable) {
-			$config->setPrefix(self::$browser[$id]);
-		}
-
-		return self::$browser[$id];
-	}
-
-	public function prefix(string $pref, string $mark='~'): void {
-		$this->pref = $pref;
-		$this->mark = $mark;
-	}
-
 	/**
 	* Подготовка соединения и запроса к выполнению.
 	*/
 	private function prepare(string $query, array $var, bool $unbuf = false, bool $suba = false): bool {
-		$this->connector->correct($this->state);
+//		$this->connector->correct($this->state); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if (!$this->connector->checkState($this)) {
+			return false;
+		}
 
 		if ('' !== $this->mark) {
-			$query = str_replace($this->mark, $this->pref, $query);
+			$query = str_replace($this->mark, $this->prefix, $query);
 		}
 
 		if (sizeof($var) > 0) {
@@ -137,13 +61,13 @@ abstract class Browser implements Inquirer {
 					if ($suba) {
 						foreach ($val as $id => $data) {
 							$search[]  = '{'.$key.'#'.$id.'}';
-							$replace[] = $this->sqlEscape((string)$data);
+							$replace[] = $this->driver->escape($this->connector, (string)$data);
 						}
 					}
 				}
 				else {
 					$search[]  = '{'.$key.'}';
-					$replace[] = $this->sqlEscape((string)$val);
+					$replace[] = $this->driver->escape($this->connector, (string)$val);
 				}
 			}
 			
@@ -151,14 +75,15 @@ abstract class Browser implements Inquirer {
 		}
 
 		if ($unbuf) {
-			$this->result = $this->sqlUquery($query);
+			$this->driver->unbufQuery($this->connector, $query);
 		}
 		else {
-			$this->result = $this->sqlQuery($query);
+			$this->driver->query($this->connector, $query);
 		}
 
-		if (false === $this->result) {
-			Error::log($this->sqlError(), Code::Query);
+		if (!$this->driver->isResult()) {
+			//Error::log($this->driver->error($this->connector), Code::Query);
+			///////////////////////////////////////////////////////////////////
 			return false;
 		}
 
@@ -176,11 +101,11 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchRow()) {
+		while ($row = $this->driver->fetchRow()) {
 			$data[] = $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -196,11 +121,11 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchAssoc()) {
+		while ($row = $this->driver->fetchAssoc()) {
 			$data[] = $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -215,24 +140,24 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		if ($row = $this->sqlFetchRow()) {
+		if ($row = $this->driver->fetchRow()) {
 			if (!$first_only && array_key_exists(1, $row)) {
 				$data[$row[0]] = $row[1];
 
-				while ($row = $this->sqlFetchRow()) {
+				while ($row = $this->driver->fetchRow()) {
 					$data[$row[0]] = $row[1];
 				}
 			}
 			else {
 				$data[$row[0]] = $row[0];
 
-				while ($row = $this->sqlFetchRow()) {
+				while ($row = $this->driver->fetchRow()) {
 					$data[$row[0]] = $row[0];
 				}
 			}
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -246,11 +171,11 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchRow()) {
+		while ($row = $this->driver->fetchRow()) {
 			$data[] = $row[0];
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -303,13 +228,13 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchRow()) {
+		while ($row = $this->driver->fetchRow()) {
 			$id = $row[0];
 			$data[$id] ??= [];
 			$data[$id][] = $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -323,14 +248,14 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchAssoc()) {
+		while ($row = $this->driver->fetchAssoc()) {
 			$column = array_key_first($row);
 			$id = $row[$column];
 			$data[$id] ??= [];
 			$data[$id][] = $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -344,13 +269,13 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchRow()) {
+		while ($row = $this->driver->fetchRow()) {
 			$id = array_shift($row);
 			$data[$id] ??= [];
 			$data[$id][] = $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -364,13 +289,13 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchAssoc()) {
+		while ($row = $this->driver->fetchAssoc()) {
 			$id = array_shift($row);
 			$data[$id] ??= [];
 			$data[$id][] = $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -384,14 +309,14 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		if ($row = $this->sqlFetchRow()) {
+		if ($row = $this->driver->fetchRow()) {
 			$data[$row[0]] ??= [];
 
 			for ($i=1; array_key_exists($i, $row); $i++) {
 				$data[$row[0]][] = $row[$i];
 			}
 
-			while ($row = $this->sqlFetchRow()) {
+			while ($row = $this->driver->fetchRow()) {
 				$data[$row[0]] ??= [];
 
 				for ($i=1; array_key_exists($i, $row); $i++) {
@@ -400,7 +325,7 @@ abstract class Browser implements Inquirer {
 			}
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -414,12 +339,12 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		if ($row = $this->sqlFetchRow()) {
+		if ($row = $this->driver->fetchRow()) {
 			if (array_key_exists(2, $row)) {
 				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[2];
 
-				while ($row = $this->sqlFetchRow()) {
+				while ($row = $this->driver->fetchRow()) {
 					$data[$row[0]] ??= [];
 					$data[$row[0]][$row[1]] = $row[2];
 				}
@@ -428,14 +353,14 @@ abstract class Browser implements Inquirer {
 				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[1];
 
-				while ($row = $this->sqlFetchRow()) {
+				while ($row = $this->driver->fetchRow()) {
 					$data[$row[0]] ??= [];
 					$data[$row[0]][$row[1]] = $row[1];
 				}
 			}
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -454,11 +379,11 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		while ($row = $this->sqlFetchRow()) {
+		while ($row = $this->driver->fetchRow()) {
 			$data[$row[0]] = $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -476,16 +401,16 @@ abstract class Browser implements Inquirer {
 
 		$data = [];
 
-		if ($row = $this->sqlFetchAssoc()) {
+		if ($row = $this->driver->fetchAssoc()) {
 			$column = array_key_first($row);
 			$data[$row[$column]] = $row;
 
-			while ($row = $this->sqlFetchAssoc()) {
+			while ($row = $this->driver->fetchAssoc()) {
 				$data[$row[$column]] = $row;
 			}
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return $data;
 	}
 
@@ -497,12 +422,12 @@ abstract class Browser implements Inquirer {
 			return [];
 		}
 
-		if ($row = $this->sqlFetchArray()) {
-			$this->sqlFree();
+		if ($row = $this->driver->fetchArray()) {
+			$this->driver->free();
 			return $row;
 		}
 
-		$this->sqlFree();
+		$this->driver->free();
 		return [];
 	}
 
@@ -514,27 +439,19 @@ abstract class Browser implements Inquirer {
 			return '';
 		}
 
-		if (!$this->sqlNumRows()) {
+		if (!$this->driver->numRows()) {
 			return '';
 		}
 
-		$data = $this->sqlResult();
-		$this->sqlFree();
+		$data = $this->driver->result();
+		$this->driver->free();
 		return $data;
 	}
-
-	/** ?
-	* Выполнить INSERT SQL запрос, вернуть индекс последней вставленной записи
-	*//*
-	public function insert($query, array $value=array())
-	{
-		return $this->prepare($query, $value, true);
-	}*/
 
 	/**
 	* Выполнить SQL запрос.
 	*/
-	public function run(string $query, array $value = [], bool $suba = false) {
+	public function run(string $query, array $value = [], bool $suba = false): bool {
 		return $this->prepare($query, $value, true, $suba);
 	}
 
@@ -546,7 +463,7 @@ abstract class Browser implements Inquirer {
 			return 0;
 		}
 
-		return $this->sqlAffected();
+		return $this->driver->affected($this->connector);
 	}
 
 	/**
@@ -554,20 +471,13 @@ abstract class Browser implements Inquirer {
 	* Соответствует имени расширения.
 	*/
 	public function getType(): string {
-		return $this->connector->getType();
-	}
-
-	/**
-	* Получить префикс таблиц источника данных с которым раборает поставщик данных
-	*/
-	public function getPrefix(): string {
-		return Config::open($this->connector->csname())->px;
+		return $this->connector->type;
 	}
 
 	/**
 	* Получить текст ошибки
 	*/
 	public function error(): string {
-		return $this->sqlError();
+		return $this->driver->error($this->connector);
 	}
 }

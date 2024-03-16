@@ -1,33 +1,21 @@
 <?php declare(strict_types=1);
-/**
- * (c) 2005-2024 Dmitry Lebedev <dl@adios.ru>
- * This source code is part of the Ultra data package.
- * Please see the LICENSE file for copyright and licensing information.
- */
+
 namespace Ultra\Data\SQLite;
 
-use Error as InternalError;
+use Error;
 use Exception;
 use SQLite3;
-use Ultra\Error;
-use Ultra\Data\Code;
-use Ultra\Data\Configurable;
-use Ultra\Data\Source;
+use Ultra\Data\Config;
+use Ultra\Data\Connector as Connect;
+use Ultra\Data\Status;
+use Ultra\Fail;
 
-final class Connector extends Source {
-	public function getType(): string {
-		return 'sqlite';
-	}
-
-	protected function isConnect(): bool {
-		return is_object($this->conn);
-	}
-
+final class Connector extends Connect {
 	protected function setState(array $state): bool {
 		return true;
 	}
 
-	protected function makeConnect(Configurable $config): void {
+	protected function makeConnect(Config $config): object|false {
 		try {
 			if ('full' == $config->mode) {
 				$flag = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
@@ -37,28 +25,21 @@ final class Connector extends Source {
 			}
 
 			if ($config->key) {
-				$this->conn = @new SQLite3($config->db, $flag, $config->key);
+				$connect = @new SQLite3($config->db, $flag, $config->key);
 			}
 			else {
-				$this->conn = @new SQLite3($config->db, $flag);
+				$connect = @new SQLite3($config->db, $flag);
 			}
+
+			return $connect;
 		}
 		catch (Exception $e) {
-			$error = Error::log($e->getMessage(), Code::Connect);
-			$this->conn = $error->id;
+			$this->error = new Fail(Status::ConnectionRefused, $e->getMessage(), __FILE__, __LINE__);
+			return false;
 		}
-		catch (InternalError $e) {
-			$error = Error::log($e->getMessage(), Code::Connect);
-			$this->conn = $error->id;
+		catch (Error $e) {
+			$this->error = new Fail(Status::ConnectionRefused, $e->getMessage(), __FILE__, __LINE__);
+			return false;
 		}
-	}
-
-	protected function registerError(): void {
-/*
-		if (is_object($link)) return $link->lastErrorMsg();
-		elseif (is_int($link)) return \Ultra\Error::message($link);
-		else return '';
-*/
-		return;
 	}
 }
