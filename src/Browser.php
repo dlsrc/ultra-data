@@ -12,7 +12,7 @@ use Ultra\Error;
 abstract class Browser implements Inquirer {
 	abstract public function patch(string $field): string;
 	abstract protected function sqlAffected(): int;
-	abstract protected function sqlErrno(): int ;
+	abstract protected function sqlErrno(): int;
 	abstract protected function sqlError(): string;
 	abstract protected function sqlEscape(string $string): string;
 	abstract protected function sqlFetchArray(): array|null|false;
@@ -53,19 +53,19 @@ abstract class Browser implements Inquirer {
 				$val = $this->sqlEscape((string) $val);
 			}
 
-			return ' IN("'.\implode('", "', $value).'") ';
+			return ' IN("'.implode('", "', $value).'") ';
 		}
 		else {
 			foreach ($value as &$val) {
 				$val = ' `'.$or_field.'` = "'.$this->sqlEscape((string) $val).'" ';
 			}
 
-			return \implode('OR', $value);
+			return implode('OR', $value);
 		}
 	}
 
 	public function keys(array $value, string $or_field=''): string {
-		return $this->in(\array_keys($value), $or_field);
+		return $this->in(array_keys($value), $or_field);
 	}
 
 	public static function make(Configurable $config, bool $reset): Inquirer|null {
@@ -80,7 +80,7 @@ abstract class Browser implements Inquirer {
 		$id = $config->getProviderId();
 
 		if (!isset(self::$browser[$id])) {
-			switch (\get_class($config)) {
+			switch (get_class($config)) {
 			case namespace\MySQL\Config::class:
 				$class = namespace\MySQL\Browser::class;
 				break;
@@ -95,7 +95,7 @@ abstract class Browser implements Inquirer {
 
 			default:
 				Error::log(
-					Core::message('e_db_browser', \get_class($config)),
+					Core::message('e_db_browser', get_class($config)),
 					Code::Browser
 				);
 
@@ -125,15 +125,15 @@ abstract class Browser implements Inquirer {
 		$this->connector->correct($this->state);
 
 		if ('' !== $this->mark) {
-			$query = \str_replace($this->mark, $this->pref, $query);
+			$query = str_replace($this->mark, $this->pref, $query);
 		}
 
-		if (\sizeof($var) > 0) {
+		if (sizeof($var) > 0) {
 			$search  = [];
 			$replace = [];
 
 			foreach ($var as $key => $val) {
-				if (\is_array($val)) {
+				if (is_array($val)) {
 					if ($suba) {
 						foreach ($val as $id => $data) {
 							$search[]  = '{'.$key.'#'.$id.'}';
@@ -147,7 +147,7 @@ abstract class Browser implements Inquirer {
 				}
 			}
 			
-			$query = \str_replace($search, $replace, $query);
+			$query = str_replace($search, $replace, $query);
 		}
 
 		if ($unbuf) {
@@ -216,7 +216,7 @@ abstract class Browser implements Inquirer {
 		$data = [];
 
 		if ($row = $this->sqlFetchRow()) {
-			if (!$first_only && \array_key_exists(1, $row)) {
+			if (!$first_only && array_key_exists(1, $row)) {
 				$data[$row[0]] = $row[1];
 
 				while ($row = $this->sqlFetchRow()) {
@@ -260,7 +260,7 @@ abstract class Browser implements Inquirer {
 		}
 
 		if (!empty($data)) {
-			return '("'.\implode('", "', $data).'")';
+			return '("'.implode('", "', $data).'")';
 		}
 
 		return '("0")';
@@ -324,7 +324,7 @@ abstract class Browser implements Inquirer {
 		$data = [];
 
 		while ($row = $this->sqlFetchAssoc()) {
-			$column = \array_key_first($row);
+			$column = array_key_first($row);
 			$id = $row[$column];
 			$data[$id] ??= [];
 			$data[$id][] = $row;
@@ -345,7 +345,7 @@ abstract class Browser implements Inquirer {
 		$data = [];
 
 		while ($row = $this->sqlFetchRow()) {
-			$id = \array_shift($row);
+			$id = array_shift($row);
 			$data[$id] ??= [];
 			$data[$id][] = $row;
 		}
@@ -365,7 +365,7 @@ abstract class Browser implements Inquirer {
 		$data = [];
 
 		while ($row = $this->sqlFetchAssoc()) {
-			$id = \array_shift($row);
+			$id = array_shift($row);
 			$data[$id] ??= [];
 			$data[$id][] = $row;
 		}
@@ -387,14 +387,14 @@ abstract class Browser implements Inquirer {
 		if ($row = $this->sqlFetchRow()) {
 			$data[$row[0]] ??= [];
 
-			for ($i=1; \array_key_exists($i, $row); $i++) {
+			for ($i=1; array_key_exists($i, $row); $i++) {
 				$data[$row[0]][] = $row[$i];
 			}
 
 			while ($row = $this->sqlFetchRow()) {
 				$data[$row[0]] ??= [];
 
-				for ($i=1; \array_key_exists($i, $row); $i++) {
+				for ($i=1; array_key_exists($i, $row); $i++) {
 					$data[$row[0]][] = $row[$i];
 				}
 			}
@@ -415,7 +415,7 @@ abstract class Browser implements Inquirer {
 		$data = [];
 
 		if ($row = $this->sqlFetchRow()) {
-			if (\array_key_exists(2, $row)) {
+			if (array_key_exists(2, $row)) {
 				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[2];
 
@@ -424,7 +424,7 @@ abstract class Browser implements Inquirer {
 					$data[$row[0]][$row[1]] = $row[2];
 				}
 			}
-			elseif (\array_key_exists(1, $row)) {
+			elseif (array_key_exists(1, $row)) {
 				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[1];
 
@@ -477,7 +477,7 @@ abstract class Browser implements Inquirer {
 		$data = [];
 
 		if ($row = $this->sqlFetchAssoc()) {
-			$column = \array_key_first($row);
+			$column = array_key_first($row);
 			$data[$row[$column]] = $row;
 
 			while ($row = $this->sqlFetchAssoc()) {
@@ -571,4 +571,3 @@ abstract class Browser implements Inquirer {
 		return $this->sqlError();
 	}
 }
-

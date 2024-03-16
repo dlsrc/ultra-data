@@ -55,8 +55,8 @@ final class Connector extends Source {
 
 	protected function registerError(): void {
 /*
-		if (\is_object($link)) return $link->lastErrorMsg();
-		elseif (\is_int($link)) return \Ultra\Error::message($link);
+		if (is_object($link)) return $link->lastErrorMsg();
+		elseif (is_int($link)) return \Ultra\Error::message($link);
 		else return '';
 */
 		return;

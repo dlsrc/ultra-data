@@ -65,7 +65,7 @@ abstract class Source {
 			return Config::open($dsn);
 		}
 
-		\parse_str($dsn, $config);
+		parse_str($dsn, $config);
 
 		if (!isset($config['type'])) {
 			Error::log(
@@ -103,7 +103,7 @@ abstract class Source {
 			return NULL;
 		}
 
-		if (!\extension_loaded($config['type'])) {
+		if (!extension_loaded($config['type'])) {
 			$config['type'] = $config['type'].'.'.PHP_SHLIB_SUFFIX;
 
 			if (PHP_SHLIB_SUFFIX == 'dll') {
@@ -147,7 +147,7 @@ abstract class Source {
 		$id = $config->getConnectId();
 
 		if (!isset(self::$connector[$id])) {
-			switch (\get_class($config)) {
+			switch (get_class($config)) {
 			case namespace\MySQL\Config::class:
 				$class = namespace\MySQL\Connector::class;
 				break;
@@ -166,7 +166,7 @@ abstract class Source {
 
 			default:
 				Error::log(
-					Core::message('e_db_connect', \get_class($config)),
+					Core::message('e_db_connect', get_class($config)),
 					Code::Connect
 				);
 

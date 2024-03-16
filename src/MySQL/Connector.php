@@ -98,7 +98,7 @@ final class Connector extends Source {
 				$error  = $this->conn->connect_error;
 			}
 			else {
-				$error = \iconv($input, $output, $this->conn->connect_error);
+				$error = iconv($input, $output, $this->conn->connect_error);
 			}
 		}
 

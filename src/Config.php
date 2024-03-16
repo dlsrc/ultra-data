@@ -21,7 +21,7 @@ abstract class Config implements Mutable, Called {
 
 	protected function __construct(array $state = [], string $name = '') {
 		if ('' == $name) {
-			$this->_name = \get_class($this);
+			$this->_name = get_class($this);
 		}
 		else {
 			$this->_name = $name;
