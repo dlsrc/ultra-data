@@ -32,15 +32,19 @@ class Source implements State {
 	 */
 	readonly public string $type;
 
+	/**
+	 * Получить интерфейс состояния источника данных из строки подключения к источнику данных.
+	 */
 	public static function get(string $dsn): State {
 		self::$_source[$dsn] ??= (new Dsn($dsn))->parse()->commit(self::_make(...));
 		return self::$_source[$dsn];
 	}
 
+	/**
+	 * Проверить возможность совершить подключение к источнику данных
+	 */
 	public static function supported(string $dsn): bool {
-		
-
-		return true;
+		return self::get($dsn)->follow(Config::get(...))->follow(Connector::get(...))->valid();
 	}
 
 	public function configure(Config $config): State {
