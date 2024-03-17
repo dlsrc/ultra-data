@@ -4,8 +4,8 @@ namespace Ultra\Data;
 
 class Browser extends Provider {
 	public readonly SQL $driver;
-	protected string $mark;
-	protected string $prefix;
+	public readonly string $mark;
+	public readonly string $prefix;
 
 	protected function setup(Config $config, Driver $driver) {
 		$this->driver = $driver;
