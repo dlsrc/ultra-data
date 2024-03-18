@@ -7,21 +7,29 @@ use Ultra\Data\Config as DataConfig;
 final class Config extends DataConfig {
 	protected function initialize(): void {
 		// Опции подключения
-		$this->_property['host']     = 'localhost';
-		$this->_property['user']     = 'root';
-		$this->_property['password'] = '';
+		$this->_property['host']            = 'localhost';
+		$this->_property['user']            = 'root';
+		$this->_property['password']        = '';
 		// Опция выбора базы данных
-		$this->_property['database'] = 'test';
+		$this->_property['database']        = 'test';
 		// Создавать базу данных в случае ее отсутствия на сервере
-		$this->_property['create']   = false;
+		$this->_property['create']          = false;
 		// Опция сопоставления кодировки соединения с сервером.
-		$this->_property['charset']  = 'utf8mb4';
+		$this->_property['charset']         = 'utf8mb4';
 		// Кодировка сообщений от сервера
-		$this->_property['lang']     = 'utf8';
+		$this->_property['lang']            = 'utf8';
 		// Префикс в именах таблиц
-		$this->_property['prefix']   = '';
+		$this->_property['prefix']          = '';
 		// Метка по умолчанию для замены на префикс в строке запроса
-		$this->_property['mark']     = '~';
+		$this->_property['mark']            = '~';
+		// Автокоммит транзакций
+		$this->_property['autocommit']      = 1;
+		// Таймаут соединения в секундах
+		$this->_property['connect_timeout'] = 0;
+		// Таймаут ожидания результата команд
+		$this->_property['read_timeout']    = 0;
+		// Использовать real_connect при подключении
+		$this->_property['real_connect']    = false;
 
 		// Опции алиасы
 		$this->_property['h']      = &$this->_property['host'];

@@ -20,6 +20,10 @@ enum Status: int implements Condition {
 	case UnknownContractorName     = 312;
 	case MissingArgumentDSN        = 313;
 	case NoConfiguration           = 314;
+	case ConnectionNotInit         = 315;
+	case StopAutocommitFailure     = 316;
+	case TimeoutNotChanged         = 317;
+	case SetCharsetNameFailure     = 318;
 
 	public function isFatal(): bool {
 		return false;
