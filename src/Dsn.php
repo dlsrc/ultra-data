@@ -132,7 +132,10 @@ final class Dsn {
 			}
 		}
 
-		$source['port'] = (string) $source['port'];
+		if ('sqlite' != $source['type']) {
+			$source['port'] = (string) $source['port'];
+		}
+
 		return new Result($source);
 	}
 }
