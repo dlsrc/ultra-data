@@ -8,6 +8,7 @@ final class Config extends DataConfig {
 	protected function initialize(): void {
 		// Опции подключения
 		$this->_property['host']            = 'localhost';
+		$this->_property['port']            = '3306';
 		$this->_property['user']            = 'root';
 		$this->_property['password']        = '';
 		// Опция выбора базы данных
@@ -51,18 +52,20 @@ final class Config extends DataConfig {
 
 	public function getProviderId(): string {
 		return
-		'h='.$this->_property['host'].
-		' u='.$this->_property['user'].
-		' p='.$this->_property['password'].
-		' db='.$this->_property['database'].
-		' cs='.$this->_property['charset'];
+		'host='.$this->_property['host'].
+		' port='.$this->_property['port'].
+		' user='.$this->_property['user'].
+		' pass='.$this->_property['password'].
+		' dbname='.$this->_property['database'].
+		' charset='.$this->_property['charset'];
 	}
 
 	public function getConnectId(): string {
 		return
-		'h='.$this->_property['host'].
-		' u='.$this->_property['user'].
-		' p='.$this->_property['password'];
+		'host='.$this->_property['host'].
+		' port='.$this->_property['port'].
+		' user='.$this->_property['user'].
+		' pass='.$this->_property['password'];
 	}
 
 	public function getStateId(): array {
