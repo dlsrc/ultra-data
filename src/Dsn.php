@@ -74,6 +74,12 @@ final class Dsn {
 				if (!isset($source['dbname'])) {
 					return new Fail(Status::DatabaseNameMissing, 'SQLite database name is missing.', __FILE__, __LINE__);
 				}
+
+				if (isset($source['query'])) {
+					parse_str($source['query'], $query);
+					unset($source['query']);
+					$source = $source + $query;
+				}
 			}
 			else {
 				if (isset($source['path'])) {
@@ -97,7 +103,7 @@ final class Dsn {
 					parse_str($source['query'], $query);
 					unset($source['query']);
 					$source = $source + $query;
-				}		
+				}
 			}
 		}
 		else {
