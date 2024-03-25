@@ -35,7 +35,7 @@ final class Dsn {
 					if (!isset($source['host'])) {
 						return new Fail(Status::WrongDsnString, 'Incorrect Dsn string', __FILE__, __LINE__);
 					}
-		
+
 					switch ($source['host']) {
 					case '~':
 						if ('cli' == PHP_SAPI) {
@@ -44,7 +44,7 @@ final class Dsn {
 						else {
 							$source['dbname'] = $_SERVER['DOCUMENT_ROOT'].$source['path'];
 						}
-		
+
 						break;
 					case '..':
 						$source['dbname'] = dirname($_SERVER['SCRIPT_FILENAME']).'/..'.$source['path'];
@@ -55,7 +55,7 @@ final class Dsn {
 					default:
 						$source['dbname'] = '/'.$source['host'].$source['path'];
 					}
-		
+
 					unset($source['path'], $source['host']);
 				}
 				elseif (isset($source['host'])) {
@@ -65,7 +65,7 @@ final class Dsn {
 				else {
 					return new Fail(Status::WrongDsnString, 'Incorrect Dsn string', __FILE__, __LINE__);
 				}
-		
+
 				if (!isset($source['dbname'])) {
 					return new Fail(Status::DatabaseNameMissing, 'SQLite database name is missing.', __FILE__, __LINE__);
 				}
@@ -73,9 +73,9 @@ final class Dsn {
 			else {
 				if (isset($source['path'])) {
 					$path = preg_split('/\//', $source['path'], -1, PREG_SPLIT_NO_EMPTY);
-		
+
 					$source['dbname'] = $path[0];
-		
+
 					if (isset($path[1])) {
 						if ('pgsql' == $source['type']) {
 							$source['schema'] = $path[1];
@@ -84,10 +84,10 @@ final class Dsn {
 							$source['prefix'] = $path[1];
 						}
 					}
-		
+
 					unset($source['path']);
 				}
-		
+
 				if (isset($source['query'])) {
 					parse_str($source['query'], $query);
 					unset($source['query']);
@@ -114,11 +114,25 @@ final class Dsn {
 					return new Fail(Status::SourceTypeNotDefined, 'Source type not defined.', __FILE__, __LINE__);
 				}
 			}
+			elseif (!isset($source['port']) && 'sqlite' != $source['type']) {
+				switch ($source['type']) {
+				case 'mariadb':
+				case 'mysql':
+					$source['port'] = '3306';
+					break;
+				case 'pgsql':
+					$source['port'] = '5432';
+					break;
+				default:
+					return new Fail(Status::SourceTypeNotDefined, 'Source type not defined.', __FILE__, __LINE__);
+				}
+			}
 			elseif ('sqlite' == $source['type'] && !isset($source['dbname'])) {
 				return new Fail(Status::DatabaseNameMissing, 'SQLite database name is missing.', __FILE__, __LINE__);
 			}
 		}
 
+		$source['port'] = (string) $source['port'];
 		return new Result($source);
 	}
 }
