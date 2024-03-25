@@ -16,6 +16,26 @@ final class Connector extends Connect {
 	}
 
 	protected function makeConnect(Config $config): object|false {
+		if (!file_exists($config->dbname)) {
+			$dir = dirname($config->dbname);
+
+			if (!is_dir($dir)) {
+				if (!mkdir($dir, 0755, true)) {
+					if (!file_exists($dir)) {
+						$this->error = new Fail(
+							Status::SqliteDbMakeDirError,
+							'Unable to create database file "'.$config->dbname.'". '.
+							'This may be due to the rights to the folder in which the file is created.',
+							__FILE__,
+							__LINE__ - 5
+						);
+
+						return false;
+					}
+				}
+			}
+		}
+
 		try {
 			if ('full' == $config->mode) {
 				$flag = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;

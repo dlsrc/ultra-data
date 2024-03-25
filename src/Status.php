@@ -24,6 +24,7 @@ enum Status: int implements Condition {
 	case StopAutocommitFailure     = 316;
 	case TimeoutNotChanged         = 317;
 	case SetCharsetNameFailure     = 318;
+	case SqliteDbMakeDirError      = 319;
 
 	public function isFatal(): bool {
 		return false;
