@@ -53,7 +53,12 @@ final class Dsn {
 						$source['dbname'] = dirname($_SERVER['SCRIPT_FILENAME']).$source['path'];
 						break;
 					default:
-						$source['dbname'] = '/'.$source['host'].$source['path'];
+						if ('Windows' == PHP_OS_FAMILY) {
+							$source['dbname'] = $source['host'].':'.$source['path'];
+						}
+						else {
+							$source['dbname'] = '/'.$source['host'].$source['path'];
+						}
 					}
 
 					unset($source['path'], $source['host']);
@@ -132,7 +137,7 @@ final class Dsn {
 			}
 		}
 
-		if ('sqlite' != $source['type']) {
+		if (isset($source['port'])) {
 			$source['port'] = (string) $source['port'];
 		}
 
