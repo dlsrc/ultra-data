@@ -12,10 +12,6 @@ final class Config extends DataConfig {
 		$this->_property['mode']     = 'full'; // full or read
 		// Ключ шифрования
 		$this->_property['key']      = '';
-		// Префикс в именах таблиц
-		//$this->_property['prefix']   = '';
-		// Метка по умолчанию для замены на префикс в строке запроса
-		//$this->_property['mark']     = '~';
 
 		// Опции алиасы
 		$this->_property['db']       = &$this->_property['dbname'];
@@ -23,8 +19,6 @@ final class Config extends DataConfig {
 		$this->_property['file']     = &$this->_property['dbname'];
 		$this->_property['access']   = &$this->_property['mode'];
 		$this->_property['pref']     = &$this->_property['prefix'];
-		//$this->_property['px']       = &$this->_property['prefix'];
-		//$this->_property['mk']       = &$this->_property['mark'];
 	}
 
 	public function getProviderId(): string {

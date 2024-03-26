@@ -7,12 +7,10 @@
 namespace Ultra\Data;
 
 class Cache extends Provider {
-	//protected bool|null $status;
 	public readonly Hash $driver;
 
 	protected function setup(Driver $driver) {
 		$this->driver = $driver;
-		//$this->status = null;
 	}
 
 	public function add(string $key, mixed $value, int $flag = 0, int $expire = 0): bool {

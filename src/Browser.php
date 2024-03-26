@@ -4,13 +4,9 @@ namespace Ultra\Data;
 
 class Browser extends Provider {
 	public readonly SQL $driver;
-	//public readonly string $mark;
-	//public readonly string $prefix;
 
 	protected function setup(Driver $driver) {
 		$this->driver = $driver;
-		//$this->mark   = $config->mark;
-		//$this->prefix = $config->prefix;
 	}
 
 	public function esc(string $string): string {
@@ -47,11 +43,7 @@ class Browser extends Provider {
 		if (!$this->connector->checkState($this)) {
 			return false;
 		}
-/*
-		if ('' !== $this->mark) {
-			$query = str_replace($this->mark, $this->prefix, $query);
-		}
-*/
+
 		if (sizeof($var) > 0) {
 			$search  = [];
 			$replace = [];
