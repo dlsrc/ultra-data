@@ -19,9 +19,6 @@ final class Config extends DataConfig {
 		$this->_property['create']   = false;
 		// Схема
 		$this->_property['schema']   = 'public';
-		// Метка по умолчанию для замены на префикс в строке запроса
-		$this->_property['prefix']   = '';
-		$this->_property['mark']     = '~';
 
 		// Опции алиасы
 		$this->_property['h']        = &$this->_property['host'];
@@ -33,9 +30,6 @@ final class Config extends DataConfig {
 		$this->_property['pass']     = &$this->_property['password'];
 		$this->_property['db']       = &$this->_property['dbname'];
 		$this->_property['database'] = &$this->_property['dbname'];
-		$this->_property['pref']     = &$this->_property['prefix'];
-		$this->_property['px']       = &$this->_property['prefix'];
-		$this->_property['mk']       = &$this->_property['mark'];
 	}
 
 	public function getProviderId(): string {

@@ -19,10 +19,6 @@ final class Config extends DataConfig {
 		$this->_property['charset']         = 'utf8mb4';
 		// Кодировка сообщений от сервера
 		$this->_property['lang']            = 'utf8';
-		// Префикс в именах таблиц
-		$this->_property['prefix']          = '';
-		// Метка по умолчанию для замены на префикс в строке запроса
-		$this->_property['mark']            = '~';
 		// Автокоммит транзакций
 		$this->_property['autocommit']      = 1;
 		// Таймаут соединения в секундах
@@ -43,9 +39,6 @@ final class Config extends DataConfig {
 		$this->_property['db']     = &$this->_property['database'];
 		$this->_property['dbname'] = &$this->_property['database'];
 		$this->_property['cs']     = &$this->_property['charset'];
-		$this->_property['pref']   = &$this->_property['prefix'];
-		$this->_property['px']     = &$this->_property['prefix'];
-		$this->_property['mk']     = &$this->_property['mark'];
 		$this->_property['l']      = &$this->_property['lang'];
 		$this->_property['err']    = &$this->_property['lang'];
 	}
