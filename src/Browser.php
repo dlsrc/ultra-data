@@ -459,14 +459,6 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Получить тип источника данных с которым раборает поставщик данных
-	* Соответствует имени расширения.
-	*/
-	public function getType(): string {
-		return $this->connector->type;
-	}
-
-	/**
 	* Получить текст ошибки
 	*/
 	public function error(): string {
