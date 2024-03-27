@@ -133,7 +133,7 @@ final class Connector extends Connect {
 						hostname: $config->host,
 						username: $config->user,
 						password: $config->password,
-						port:     $config->port,
+						port:(int)$config->port,
 					);
 				}
 			}
@@ -151,7 +151,7 @@ final class Connector extends Connect {
 						hostname: $config->host,
 						username: $config->user,
 						password: $config->password,
-						port:     $config->port,
+						port:(int)$config->port,
 					);
 				}
 			}
