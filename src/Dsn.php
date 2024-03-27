@@ -85,14 +85,14 @@ final class Dsn {
 				if (isset($source['path'])) {
 					$path = preg_split('/\//', $source['path'], -1, PREG_SPLIT_NO_EMPTY);
 
-					$source['dbname'] = $path[0];
+					$source['dbname'] = array_shift($path);
 
-					if (isset($path[1])) {
+					if (isset($path[0])) {
 						if ('pgsql' == $source['type']) {
-							$source['schema'] = $path[1];
+							$source['schema'] = $path[0];
 						}
-						else {
-							$source['prefix'] = $path[1];
+						elseif ('localhost' == $source['host']) {
+							$source['socket'] = '/'.implode('/', $path);
 						}
 					}
 

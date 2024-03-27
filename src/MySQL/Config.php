@@ -9,12 +9,13 @@ final class Config extends DataConfig {
 		// Опции подключения
 		$this->_property['host']            = 'localhost';
 		$this->_property['port']            = '3306';
+		$this->_property['socket']          = '';
 		$this->_property['user']            = 'root';
 		$this->_property['password']        = '';
 		// Опция выбора базы данных
 		$this->_property['database']        = 'test';
 		// Создавать базу данных в случае ее отсутствия на сервере
-		$this->_property['create']          = false;
+		$this->_property['create']          = 0;
 		// Опция сопоставления кодировки соединения с сервером.
 		$this->_property['charset']         = 'utf8mb4';
 		// Кодировка сообщений от сервера
@@ -26,7 +27,7 @@ final class Config extends DataConfig {
 		// Таймаут ожидания результата команд
 		$this->_property['read_timeout']    = 0;
 		// Использовать real_connect при подключении
-		$this->_property['real_connect']    = false;
+		$this->_property['real_connect']    = 1;
 
 		// Опции алиасы
 		$this->_property['h']      = &$this->_property['host'];
@@ -41,6 +42,7 @@ final class Config extends DataConfig {
 		$this->_property['cs']     = &$this->_property['charset'];
 		$this->_property['l']      = &$this->_property['lang'];
 		$this->_property['err']    = &$this->_property['lang'];
+		$this->_property['real']   = &$this->_property['real_connect'];
 	}
 
 	public function getProviderId(): string {

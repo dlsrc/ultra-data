@@ -19,7 +19,13 @@ final class Connector extends Connect {
 		}
 		catch (mysqli_sql_exception $e) {
 			if (1049 != $this->connect->errno && $state['create']) {
-				$this->error = new Fail(Status::StateNotEstablished, 'Mysql Error #'.$e->getCode().'. '.$e->getMessage(), __FILE__, __LINE__);
+				$this->error = new Fail(
+					Status::StateNotEstablished,
+					'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+					__FILE__,
+					__LINE__-6
+				);
+
 				return false;
 			}
 
@@ -28,7 +34,13 @@ final class Connector extends Connect {
 				$this->connect->select_db($state['database']);
 			}
 			catch (mysqli_sql_exception $e) {
-				$this->error = new Fail(Status::StateNotEstablished, 'Mysql Error #'.$e->getCode().'. '.$e->getMessage(), __FILE__, __LINE__);
+				$this->error = new Fail(
+					Status::StateNotEstablished,
+					'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+					__FILE__,
+					__LINE__-5
+				);
+
 				return false;
 			}
 		}
@@ -38,7 +50,13 @@ final class Connector extends Connect {
 
 	protected function makeConnect(Config $config): object|false {
 		if (!extension_loaded('mysqli')) {
-			$this->error = new Fail(Status::ExtensionNotLoaded, 'Extension "mysqli" not loaded.', __FILE__, __LINE__);
+			$this->error = new Fail(
+				Status::ExtensionNotLoaded,
+				'Extension "mysqli" not loaded.',
+				__FILE__,
+				__LINE__-5
+			);
+
 			return false;	
 		}
 
@@ -46,7 +64,13 @@ final class Connector extends Connect {
 			$mysqli = mysqli_init();
 		}
 		catch (mysqli_sql_exception $e) {
-			$this->error = new Fail(Status::ConnectionNotInit, 'Mysql Error #'.$e->getCode().'. '.$e->getMessage(), __FILE__, __LINE__);
+			$this->error = new Fail(
+				Status::ConnectionNotInit,
+				'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+				__FILE__,
+				__LINE__-5
+			);
+
 			return false;
 		}
 		
@@ -56,7 +80,12 @@ final class Connector extends Connect {
 			}
 		}
 		catch (mysqli_sql_exception $e) {
-			$this->error = new Fail(Status::StopAutocommitFailure, 'Mysql Error #'.$e->getCode().'. '.$e->getMessage(), __FILE__, __LINE__);
+			$this->error = new Fail(
+				Status::StopAutocommitFailure,
+				'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+				__FILE__,
+				__LINE__-5
+			);
 		}
 
 		try {
@@ -69,26 +98,72 @@ final class Connector extends Connect {
 			}
 		}
 		catch (mysqli_sql_exception $e) {
-			$this->error = new Fail(Status::TimeoutNotChanged, 'Mysql Error #'.$e->getCode().'. '.$e->getMessage(), __FILE__, __LINE__);
+			$this->error = new Fail(
+				Status::TimeoutNotChanged,
+				'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+				__FILE__,
+				__LINE__-5
+			);
 		}
 
 		try {
 			$mysqli->options(MYSQLI_SET_CHARSET_NAME, $config->charset);
 		}
 		catch (mysqli_sql_exception $e) {
-			$this->error = new Fail(Status::SetCharsetNameFailure, 'Mysql Error #'.$e->getCode().'. '.$e->getMessage(), __FILE__, __LINE__);
+			$this->error = new Fail(
+				Status::SetCharsetNameFailure,
+				'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+				__FILE__,
+				__LINE__-5
+			);
 		}
 		
 		try {
 			if ($config->real_connect) {
-				$mysqli->real_connect($config->host, $config->user, $config->password);
+				if ('localhost' == $config->host && '' != $config->socket) {
+					$mysqli->real_connect(
+						hostname: $config->host,
+						username: $config->user,
+						password: $config->password,
+						socket:   $config->socket,
+					);
+				}
+				else {
+					$mysqli->real_connect(
+						hostname: $config->host,
+						username: $config->user,
+						password: $config->password,
+						port:     $config->port,
+					);
+				}
 			}
 			else {
-				$mysqli->connect($config->host, $config->user, $config->password);
+				if ('localhost' == $config->host && '' != $config->socket) {
+					$mysqli->connect(
+						hostname: $config->host,
+						username: $config->user,
+						password: $config->password,
+						socket:   $config->socket,
+					);
+				}
+				else {
+					$mysqli->connect(
+						hostname: $config->host,
+						username: $config->user,
+						password: $config->password,
+						port:     $config->port,
+					);
+				}
 			}
 		}
 		catch (mysqli_sql_exception $e) {
-			$this->error = new Fail(Status::ServerDown, 'Mysql Error #'.$e->getCode().'. '.$e->getMessage(), __FILE__, __LINE__);
+			$this->error = new Fail(
+				Status::ServerDown,
+				'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+				__FILE__,
+				__LINE__-5
+			);
+
 			return false;
 		}
 
