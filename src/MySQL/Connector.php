@@ -75,7 +75,7 @@ final class Connector extends Connect {
 		}
 		
 		try {
-			if (0 == $config->autocommit) {
+			if (in_array($config->autocommit, ['off', 'no', '0', 0])) {
 				$mysqli->options(MYSQLI_INIT_COMMAND, 'SET AUTOCOMMIT = 0');
 			}
 		}
@@ -89,11 +89,11 @@ final class Connector extends Connect {
 		}
 
 		try {
-			if ($config->connect_timeout > 0) {
+			if ('' != $config->connect_timeout) {
 				$mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $config->connect_timeout);
 			}
 
-			if ($config->read_timeout > 0) {
+			if ('' != $config->read_timeout) {
 				$mysqli->options(MYSQLI_OPT_READ_TIMEOUT, $config->read_timeout);
 			}
 		}
@@ -119,7 +119,7 @@ final class Connector extends Connect {
 		}
 		
 		try {
-			if ($config->real_connect) {
+			if (!in_array($config->real_connect, ['off', 'no', '0', 0])) {
 				if ('localhost' == $config->host && '' != $config->socket) {
 					$mysqli->real_connect(
 						hostname: $config->host,

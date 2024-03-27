@@ -15,19 +15,19 @@ final class Config extends DataConfig {
 		// Опция выбора базы данных
 		$this->_property['database']        = 'test';
 		// Создавать базу данных в случае ее отсутствия на сервере
-		$this->_property['create']          = 0;
+		$this->_property['create']          = 'on';
 		// Опция сопоставления кодировки соединения с сервером.
 		$this->_property['charset']         = 'utf8mb4';
 		// Кодировка сообщений от сервера
 		$this->_property['lang']            = 'utf8';
 		// Автокоммит транзакций
-		$this->_property['autocommit']      = 1;
+		$this->_property['autocommit']      = 'on';
 		// Таймаут соединения в секундах
-		$this->_property['connect_timeout'] = 0;
+		$this->_property['connect_timeout'] = '';
 		// Таймаут ожидания результата команд
-		$this->_property['read_timeout']    = 0;
+		$this->_property['read_timeout']    = '';
 		// Использовать real_connect при подключении
-		$this->_property['real_connect']    = 1;
+		$this->_property['real_connect']    = 'on';
 
 		// Опции алиасы
 		$this->_property['h']      = &$this->_property['host'];
