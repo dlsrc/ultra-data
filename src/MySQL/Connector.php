@@ -30,7 +30,7 @@ final class Connector extends Connect {
 			}
 
 			try {
-				$this->connect->query('CREATE DATABASE `'.$state['database'].'` DEFAULT CHARACTER SET '.$state['charset']);
+				$this->connect->query('CREATE DATABASE '.$state['database'].' DEFAULT CHARACTER SET '.$state['charset']);
 				$this->connect->select_db($state['database']);
 			}
 			catch (mysqli_sql_exception $e) {

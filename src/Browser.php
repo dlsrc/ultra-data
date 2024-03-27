@@ -23,7 +23,7 @@ class Browser extends Provider {
 		}
 		else {
 			foreach ($value as &$val) {
-				$val = ' `'.$or_field.'` = "'.$this->driver->escape($this->connector, (string) $val).'" ';
+				$val = ' '.$or_field.' = "'.$this->driver->escape($this->connector, (string) $val).'" ';
 			}
 
 			return implode('OR', $value);
@@ -186,27 +186,27 @@ class Browser extends Provider {
 	/**
 	* Вернуть результат SQL запроса в виде трехмерного массива.
 	*
-	* SQL => SELECT `f_1`, `f_2`, ... `f_n` FROM `t`
+	* SQL => SELECT f_1, f_2, ... f_n FROM t
 	*
 	* RETURN array(
 	*    
-	*   `v_1` => array(
+	*   v_1 => array(
 	*       
-	*       0   => array(`v_1`, `v_2_1`, ... `v_n_1`),
-	*       1   => array(`v_1`, `v_2_2`, ... `v_n_2`),
-	*       2   => array(`v_1`, `v_2_3`, ... `v_n_3`),
+	*       0   => array(v_1, v_2_1, ... v_n_1),
+	*       1   => array(v_1, v_2_2, ... v_n_2),
+	*       2   => array(v_1, v_2_3, ... v_n_3),
 	*       ..........................................
-	*       n-1 => array(`v_1`, `v_2_n`, ... `v_n_n`)
+	*       n-1 => array(v_1, v_2_n, ... v_n_n)
 	*
 	*    )
 	*
-	*   `v_2` => array(
+	*   v_2 => array(
 	*       
-	*       0   => array(`v_2`, `v_2_1`, ... `v_n_1`),
-	*       1   => array(`v_2`, `v_2_2`, ... `v_n_2`),
-	*       2   => array(`v_2`, `v_2_3`, ... `v_n_3`),
+	*       0   => array(v_2, v_2_1, ... v_n_1),
+	*       1   => array(v_2, v_2_2, ... v_n_2),
+	*       2   => array(v_2, v_2_3, ... v_n_3),
 	*       ..........................................
-	*       n-1 => array(`v_2`, `v_2_n`, ... `v_n_n`)
+	*       n-1 => array(v_2, v_2_n, ... v_n_n)
 	*
 	*    )
 	*
