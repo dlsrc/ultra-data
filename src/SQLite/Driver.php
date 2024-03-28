@@ -54,7 +54,7 @@ final class Driver extends SQL {
 		$this->result = $connector->connect->query($query);
 	}
 
-	public function result(): string {
+	public function result(): bool|int|float|string {
 		$row = $this->result->fetchArray(\SQLITE3_NUM);
 
 		if ($row && !empty($row)) {

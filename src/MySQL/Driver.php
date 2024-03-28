@@ -54,7 +54,7 @@ final class Driver extends SQL {
 		$this->result = $connector->connect->query($query);
 	}
 
-	public function result(): string {
+	public function result(): bool|int|float|string {
 		if ($row = $this->result->fetch_row()) {
 			return $row[0];
 		}

@@ -437,7 +437,7 @@ class Browser extends Provider {
 
 		$data = $this->driver->result();
 		$this->driver->free();
-		return $data;
+		return (string) $data;
 	}
 
 	/**
