@@ -2,7 +2,6 @@
 
 namespace Ultra\Data;
 
-use Ultra\Fail;
 use Ultra\State;
 use Ultra\Instance;
 
