@@ -4,9 +4,17 @@ namespace Ultra\Data;
 
 class Browser extends Provider {
 	public readonly SQL $driver;
+	public readonly string $prefix;
+	public readonly string $suffix;
 
 	protected function setup(Driver $driver) {
 		$this->driver = $driver;
+
+		[$this->prefix, $this->suffix] = match ($driver->type) {
+			'mariadb', 'mysql' => ['INSERT IGNORE INTO ', ''],
+			'pgsql' => ['INSERT INTO ', ' ON CONFLICT DO NOTHING'],
+			'sqlite' => ['INSERT OR IGNORE INTO ', ''],
+		};
 	}
 
 	public function esc(string $string): string {
