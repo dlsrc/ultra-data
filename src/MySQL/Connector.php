@@ -119,6 +119,10 @@ final class Connector extends Connect {
 		}
 		
 		try {
+			if (!in_array($config->native, ['off', 'no', '0', 0])) {
+				$mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
+			}
+
 			if (!in_array($config->real_connect, ['off', 'no', '0', 0])) {
 				if ('localhost' == $config->host && '' != $config->socket) {
 					$mysqli->real_connect(

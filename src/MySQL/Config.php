@@ -28,6 +28,7 @@ final class Config extends DataConfig {
 		$this->_property['read_timeout']    = '';
 		// Использовать real_connect при подключении
 		$this->_property['real_connect']    = 'on';
+		$this->_property['native']          = 'on';
 
 		// Опции алиасы
 		$this->_property['h']      = &$this->_property['host'];
