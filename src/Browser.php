@@ -2,19 +2,14 @@
 
 namespace Ultra\Data;
 
+use Throwable;
+use Ultra\Error;
+
 class Browser extends Provider {
 	public readonly SQL $driver;
-	public readonly string $prefix;
-	public readonly string $suffix;
 
 	protected function setup(Driver $driver) {
 		$this->driver = $driver;
-
-		[$this->prefix, $this->suffix] = match ($driver->type) {
-			'mariadb', 'mysql' => ['INSERT IGNORE INTO ', ''],
-			'pgsql' => ['INSERT INTO ', ' ON CONFLICT DO NOTHING'],
-			'sqlite' => ['INSERT OR IGNORE INTO ', ''],
-		};
 	}
 
 	public function esc(string $string): string {
@@ -74,15 +69,21 @@ class Browser extends Provider {
 			$query = str_replace($search, $replace, $query);
 		}
 
-		if ($unbuf) {
-			$this->driver->unbufQuery($this->connector, $query);
+		try {
+			if ($unbuf) {
+				$this->driver->unbufQuery($this->connector, $query);
+			}
+			else {
+				$this->driver->query($this->connector, $query);
+			}
 		}
-		else {
-			$this->driver->query($this->connector, $query);
+		catch (Throwable) {
+			Error::log($this->driver->error($this->connector).PHP_EOL.$query, Status::QueryFailed);
+			return false;
 		}
 
 		if (!$this->driver->isResult()) {
-			//Error::log($this->driver->error($this->connector), Code::Query);
+			Error::log($this->driver->error($this->connector).PHP_EOL.$query, Status::QueryFailed);
 			///////////////////////////////////////////////////////////////////
 			return false;
 		}
@@ -434,7 +435,7 @@ class Browser extends Provider {
 	/**
 	* Вернуть единственный результат SQL запроса.
 	*/
-	public function result(string $query, array $value = []): string {
+	public function result(string $query, array $value = []): bool|int|float|string {
 		if (!$this->prepare($query, $value)) {
 			return '';
 		}
@@ -445,7 +446,7 @@ class Browser extends Provider {
 
 		$data = $this->driver->result();
 		$this->driver->free();
-		return (string) $data;
+		return $data;
 	}
 
 	/**
