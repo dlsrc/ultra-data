@@ -11,6 +11,22 @@ use Ultra\Data\Status;
 use Ultra\Fail;
 
 final class Connector extends Connect {
+	public function getDbFile(): string {
+		if (preg_match('/^dbname\s*=\s*([^\s]+)\s+/', $this->id, $match) > 0) {
+			return $match[1];
+		}
+
+		return '';
+	}
+
+	public function dbFileExists(): bool {
+		if ($file = $this->getDbFile()) {
+			return file_exists($file);
+		}
+
+		return false;
+	}
+
 	protected function setState(array $state): bool {
 		return true;
 	}
