@@ -48,10 +48,12 @@ abstract class Config implements Mutable, State {
 		}
 
 		(self::$_config[$src->name] = match($src->type) {
-			'mysql', 'mariadb' => new namespace\MySQL\Config($src),
-			'pgsql' => new namespace\PgSQL\Config($src),
-			'sqlite' => new namespace\SQLite\Config($src),
-			default => new Fail(Status::NoConfiguration, 'No configuration for data source "'.$src->type.'"', __FILE__, __LINE__),
+			'mysql',
+			'mariadb'  => new namespace\MySQL\Config($src),
+			'pgsql'    => new namespace\PgSQL\Config($src),
+			'sqlite'   => new namespace\SQLite\Config($src),
+			'memcache' => new namespace\Memcache\Config($src),
+			default    => new Fail(Status::NoConfiguration, 'No configuration for data source "'.$src->type.'"', __FILE__, __LINE__),
 		})->commit($src->configure(...));
 		
 		return self::$_config[$src->name];

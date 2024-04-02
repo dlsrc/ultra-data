@@ -4,7 +4,7 @@
  * This source code is part of the Ultra data package.
  * Please see the LICENSE file for copyright and licensing information.
  */
-namespace Ultra\DataProtorype\Memcache;
+namespace Ultra\Data\Memcache;
 
 use Ultra\Data\Config as Cfg;
 
