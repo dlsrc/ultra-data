@@ -57,9 +57,17 @@ abstract class Config implements Mutable, State {
 			'pgsql'    => new namespace\PgSQL\Config($src),
 			'sqlite'   => new namespace\SQLite\Config($src),
 			'memcache' => new namespace\Memcache\Config($src),
-			default    => new Fail(Status::NoConfiguration, 'No configuration for data source "'.$src->type.'"', __FILE__, __LINE__),
+			default    => new Fail(Status::NoConfigurationByType, 'No configuration for data source "'.$src->type.'"', __FILE__, __LINE__),
 		})->commit($src->configure(...));
 		
 		return self::$_config[$src->name];
+	}
+
+	public static function open(string $name): State {
+		if (isset(self::$_config[$name])) {
+			return self::$_config[$name];
+		}
+
+		return new Fail(Status::NoConfigurationByName, 'No configuration by name "'.$name.'"', __FILE__, __LINE__);
 	}
 }

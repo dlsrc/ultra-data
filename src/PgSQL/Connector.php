@@ -6,7 +6,7 @@
  */
 namespace Ultra\Data\PgSQL;
 
-use Throwable;
+//use Throwable;
 use Ultra\Data\Config;
 use Ultra\Data\Connector as Connect;
 use Ultra\Data\Status;

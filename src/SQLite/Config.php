@@ -22,7 +22,6 @@ final class Config extends DataConfig {
 		$this->_property['database'] = &$this->_property['dbname'];
 		$this->_property['file']     = &$this->_property['dbname'];
 		$this->_property['access']   = &$this->_property['mode'];
-		$this->_property['pref']     = &$this->_property['prefix'];
 	}
 
 	public function getProviderId(): string {

@@ -13,7 +13,7 @@ use Ultra\State;
 abstract class Provider implements State {
 	use Instance;
 
-	abstract protected function setup(Driver $driver);
+	abstract protected function setup(Config $config, Connector $connector, Driver $driver);
 	private static array $_provider = [];
 
 	public readonly Connector $connector;
@@ -24,7 +24,7 @@ abstract class Provider implements State {
 		$this->connector = $connector;
 		$this->name      = $name;
 		$this->state     = $config->getStateId();
-		$this->setup($driver);
+		$this->setup($config, $connector, $driver);
 	}
 
 	public static function get(Contract $contract, string $dsn): State {

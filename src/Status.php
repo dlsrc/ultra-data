@@ -23,12 +23,13 @@ enum Status: int implements Condition {
 	case SourceTypeNotDefined      = 311;
 	case UnknownContractorName     = 312;
 	case MissingArgumentDSN        = 313;
-	case NoConfiguration           = 314;
-	case ConnectionNotInit         = 315;
-	case StopAutocommitFailure     = 316;
-	case TimeoutNotChanged         = 317;
-	case SetCharsetNameFailure     = 318;
-	case SqliteDbMakeDirError      = 319;
+	case NoConfigurationByName     = 314;
+	case NoConfigurationByType     = 315;
+	case ConnectionNotInit         = 316;
+	case StopAutocommitFailure     = 317;
+	case TimeoutNotChanged         = 318;
+	case SetCharsetNameFailure     = 319;
+	case SqliteDbMakeDirError      = 320;
 
 	public function isFatal(): bool {
 		return false;

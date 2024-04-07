@@ -11,34 +11,21 @@ use Ultra\Error;
 
 class Browser extends Provider {
 	public readonly SQL $driver;
+	public readonly array|null $prefix;
 
-	protected function setup(Driver $driver) {
+	protected function setup(Config $config, Connector $connector, Driver $driver) {
 		$this->driver = $driver;
+
+		if (isset($config->schema) && isset($config->prefix) && '' != $config->prefix) {
+			$this->prefix = [$config->prefix, $config->schema.'.'.$config->prefix];
+		}
+		else {
+			$this->prefix = null;
+		}
 	}
 
 	public function esc(string $string): string {
 		return $this->driver->escape($this->connector, $string);
-	}
-
-	public function in(array $value, string $or_field=''): string {
-		if ('' == $or_field) {
-			foreach ($value as &$val) {
-				$val = $this->driver->escape($this->connector, (string) $val);
-			}
-
-			return ' IN("'.implode('", "', $value).'") ';
-		}
-		else {
-			foreach ($value as &$val) {
-				$val = ' '.$or_field.' = "'.$this->driver->escape($this->connector, (string) $val).'" ';
-			}
-
-			return implode('OR', $value);
-		}
-	}
-
-	public function keys(array $value, string $or_field=''): string {
-		return $this->in(array_keys($value), $or_field);
 	}
 
 	/**
@@ -71,6 +58,10 @@ class Browser extends Provider {
 			}
 			
 			$query = str_replace($search, $replace, $query);
+		}
+
+		if (null != $this->prefix) {
+			$query = str_replace($this->prefix[0], $this->prefix[1], $query);
 		}
 
 		try {
