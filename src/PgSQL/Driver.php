@@ -73,9 +73,4 @@ final class Driver extends SQL {
 
 		return '';
 	}
-
-	public function unbufQuery(Connector $connector, string $query): void {
-		$this->result = pg_query($connector->connect, $query);
-	}
-
 }

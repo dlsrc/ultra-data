@@ -31,7 +31,7 @@ class Browser extends Provider {
 	/**
 	* Подготовка соединения и запроса к выполнению.
 	*/
-	private function prepare(string $query, array $var, bool $unbuf = false, bool $suba = false): bool {
+	private function prepare(string $query, array $var): bool {
 //		$this->connector->correct($this->state); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		if (!$this->connector->checkState($this)) {
@@ -43,20 +43,10 @@ class Browser extends Provider {
 			$replace = [];
 
 			foreach ($var as $key => $val) {
-				if (is_array($val)) {
-					if ($suba) {
-						foreach ($val as $id => $data) {
-							$search[]  = '{'.$key.'#'.$id.'}';
-							$replace[] = $this->driver->escape($this->connector, (string)$data);
-						}
-					}
-				}
-				else {
-					$search[]  = '{'.$key.'}';
-					$replace[] = $this->driver->escape($this->connector, (string)$val);
-				}
+				$search[]  = '{'.$key.'}';
+				$replace[] = $this->driver->escape($this->connector, (string)$val);
 			}
-			
+
 			$query = str_replace($search, $replace, $query);
 		}
 
@@ -65,12 +55,7 @@ class Browser extends Provider {
 		}
 
 		try {
-			if ($unbuf) {
-				$this->driver->unbufQuery($this->connector, $query);
-			}
-			else {
-				$this->driver->query($this->connector, $query);
-			}
+			$this->driver->query($this->connector, $query);
 		}
 		catch (Throwable) {
 			Error::log($this->driver->error($this->connector).PHP_EOL.$query, Status::QueryFailed);
@@ -447,15 +432,15 @@ class Browser extends Provider {
 	/**
 	* Выполнить SQL запрос.
 	*/
-	public function run(string $query, array $value = [], bool $suba = false): bool {
-		return $this->prepare($query, $value, true, $suba);
+	public function run(string $query, array $value = []): bool {
+		return $this->prepare($query, $value);
 	}
 
 	/**
 	* Выполнить SQL запрос, вернуть количество рядов затронутое запросом.
 	*/
-	public function affect(string $query, array $value = [], bool $suba=false): int {
-		if (!$this->prepare($query, $value, false, $suba)) {
+	public function affect(string $query, array $value = []): int {
+		if (!$this->prepare($query, $value)) {
 			return 0;
 		}
 

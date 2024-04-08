@@ -65,8 +65,4 @@ final class Driver extends SQL {
 
 		return '';
 	}
-
-	public function unbufQuery(Connector $connector, string $query): void {
-		$this->result = $connector->connect->query($query);
-	}
 }

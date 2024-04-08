@@ -22,7 +22,6 @@ abstract class SQL extends Driver {
 	abstract public function numRows(): int;
 	abstract public function query(Connector $connector, string $query): void;
 	abstract public function result(): bool|int|float|string;
-	abstract public function unbufQuery(Connector $connector, string $query): void;
 
 	protected function __construct(Connector $connector) {
 		parent::__construct($connector);
