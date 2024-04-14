@@ -23,7 +23,7 @@ final class Config extends DataConfig {
 		$this->_property['create']   = false;
 		// Схема
 		$this->_property['schema']   = 'public';
-		// Префикс идентификаторов таблиц, к которым нужно ддобавить
+		// Префикс идентификаторов таблиц, к которым нужно добавить
 		// идентификатор схемы.
 		$this->_property['prefix']   = '';
 

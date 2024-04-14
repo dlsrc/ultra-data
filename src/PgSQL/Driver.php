@@ -67,7 +67,7 @@ final class Driver extends SQL {
 	}
 
 	public function result(): bool|int|float|string {
-		if ($row = $this->result->fetch_row()) {
+		if ($row = pg_fetch_row($this->result)) {
 			return $row[0];
 		}
 

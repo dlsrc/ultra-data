@@ -44,7 +44,14 @@ class Browser extends Provider {
 
 			foreach ($var as $key => $val) {
 				$search[]  = '{'.$key.'}';
-				$replace[] = $this->driver->escape($this->connector, (string)$val);
+				
+				$replace[] = match (gettype($val)) {
+					'string' => $this->driver->escape($this->connector, $val),
+					'integer', 'double' => (string) $val,
+					'boolean' => (string) (int) $val,
+					'NULL' => 'NULL',
+					default => '',
+				};
 			}
 
 			$query = str_replace($search, $replace, $query);
