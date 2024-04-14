@@ -9,7 +9,7 @@ namespace Ultra\Data;
 class Cache extends Provider {
 	public readonly Hash $driver;
 
-	protected function setup(Config $config, Connector $connector, Driver $driver) {
+	protected function setup(Driver $driver) {
 		$this->driver = $driver;
 	}
 

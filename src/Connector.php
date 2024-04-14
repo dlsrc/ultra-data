@@ -99,8 +99,12 @@ abstract class Connector implements State {
 		return is_object($this->connect);
 	}
 
-	final protected function getConfig(): Config {
-		return Config::get(Source::get($this->name));
+	final public function getConfig(): Config {
+		if (!$config = Config::open($this->name)->call()) {
+			return Config::get(Source::get($this->name));
+		}
+
+		return $config;
 	}
 
 	final public function getState(): array {

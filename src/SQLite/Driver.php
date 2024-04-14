@@ -27,15 +27,15 @@ final class Driver extends SQL {
 	}
 
 	public function fetchArray(): array|null|false {
-		return $this->result->fetchArray(\SQLITE3_BOTH);
+		return $this->result->fetchArray(SQLITE3_BOTH);
 	}
 
 	public function fetchAssoc(): array|null|false {
-		return $this->result->fetchArray(\SQLITE3_ASSOC);
+		return $this->result->fetchArray(SQLITE3_ASSOC);
 	}
 
 	public function fetchRow(): array|null|false {
-		return $this->result->fetchArray(\SQLITE3_NUM);
+		return $this->result->fetchArray(SQLITE3_NUM);
 	}
 
 	public function free(): void {
@@ -59,7 +59,7 @@ final class Driver extends SQL {
 	}
 
 	public function result(): bool|int|float|string {
-		$row = $this->result->fetchArray(\SQLITE3_NUM);
+		$row = $this->result->fetchArray(SQLITE3_NUM);
 
 		if ($row && !empty($row)) {
 			return $row[0];

@@ -18,6 +18,11 @@ final class Connector extends Connect {
 			return false;
 		}
 
+		if ('public' != $state['schema']) {
+			pg_query($this->connect, 'CREATE SCHEMA IF NOT EXISTS '.$state['schema']);
+			pg_query($this->connect, 'SET search_path TO '.$state['schema']);
+		}
+
 		return true;
 	}
 
@@ -28,16 +33,16 @@ final class Connector extends Connect {
 		}
 
 		if ($connect = pg_connect($config->getConnectId())) {
-			if (PGSQL_CONNECTION_OK == pg_connection_status($connect)) {
-				return $connect;
-			}
-			else {
+			if (PGSQL_CONNECTION_OK != pg_connection_status($connect)) {
 				$this->error = new Fail(Status::ConnectionRefused, pg_last_error($connect), __FILE__, __LINE__);
 				return false;
 			}
+
+			return $connect;
+
 		}
 
-		$this->error = new Fail(Status::ServerDown, 'Data sooource "'.$config->getConnectId().'" is not available.', __FILE__, __LINE__);
+		$this->error = new Fail(Status::ServerDown, 'Data source "'.$config->getConnectId().'" is not available.', __FILE__, __LINE__);
 		return false;
 	}
 }

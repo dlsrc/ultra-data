@@ -11,17 +11,9 @@ use Ultra\Error;
 
 class Browser extends Provider {
 	public readonly SQL $driver;
-	public readonly array|null $prefix;
 
-	protected function setup(Config $config, Connector $connector, Driver $driver) {
+	protected function setup(Driver $driver) {
 		$this->driver = $driver;
-
-		if (isset($config->schema) && isset($config->prefix) && '' != $config->prefix) {
-			$this->prefix = [$config->prefix, $config->schema.'.'.$config->prefix];
-		}
-		else {
-			$this->prefix = null;
-		}
 	}
 
 	public function esc(string $string): string {
@@ -55,10 +47,6 @@ class Browser extends Provider {
 			}
 
 			$query = str_replace($search, $replace, $query);
-		}
-
-		if (null != $this->prefix) {
-			$query = str_replace($this->prefix[0], $this->prefix[1], $query);
 		}
 
 		try {

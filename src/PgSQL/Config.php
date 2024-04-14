@@ -23,9 +23,6 @@ final class Config extends DataConfig {
 		$this->_property['create']   = false;
 		// Схема
 		$this->_property['schema']   = 'public';
-		// Префикс идентификаторов таблиц, к которым нужно добавить
-		// идентификатор схемы.
-		$this->_property['prefix']   = '';
 
 
 		// Опции алиасы
@@ -38,7 +35,6 @@ final class Config extends DataConfig {
 		$this->_property['pass']     = &$this->_property['password'];
 		$this->_property['db']       = &$this->_property['dbname'];
 		$this->_property['database'] = &$this->_property['dbname'];
-		$this->_property['pref']     = &$this->_property['prefix'];
 	}
 
 	public function getProviderId(): string {
@@ -60,6 +56,7 @@ final class Config extends DataConfig {
 	public function getStateId(): array {
 		return [
 			'dbname' => $this->_property['dbname'],
+			'schema' => $this->_property['schema'],
 		];
 	}
 }
