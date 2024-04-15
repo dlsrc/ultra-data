@@ -16,6 +16,8 @@ final class Config extends DataConfig {
 		$this->_property['mode']     = 'full'; // full or read
 		// Ключ шифрования
 		$this->_property['key']      = '';
+		// Класс реализующий интерфейс добавления SQL функций
+		$this->_property['extras']   = '';
 
 		// Опции алиасы
 		$this->_property['db']       = &$this->_property['dbname'];
@@ -33,6 +35,8 @@ final class Config extends DataConfig {
 	}
 
 	public function getStateId(): array {
-		return [true];
+		return [
+			'extras' => $this->_property['extras'],
+		];
 	}
 }

@@ -32,6 +32,16 @@ final class Connector extends Connect {
 	}
 
 	protected function setState(array $state): bool {
+		if ('' == $state['extras']) {
+			return true;
+		}
+
+		if (!is_a($state['extras'], Extras::class, true)) {
+			return false;
+		}
+
+		(new $state['extras']($this))->addFunctions();
+
 		return true;
 	}
 
