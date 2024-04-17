@@ -6,6 +6,8 @@
  */
 namespace Ultra\Data;
 
+use Closure;
+use Ultra\Error;
 use Ultra\State;
 use Ultra\Instance;
 
@@ -45,9 +47,21 @@ class Source implements State {
 
 	/**
 	 * Проверить возможность совершить подключение к источнику данных
+	 * Первый аргумент, — строка подключения к источнику данных, проверку доступности которого нужно проверить.
+	 * Второй необязательный аргумент, — замыкание для перехвата и обработки ошибки.
 	 */
-	public static function supported(string $dsn): bool {
-		return self::get($dsn)->follow(Config::get(...))->follow(Connector::get(...))->valid();
+	public static function supported(string $dsn, Closure|null $reject = null): bool {
+		$connect = self::get($dsn)->follow(Config::get(...))->follow(Connector::get(...));
+
+		if ($connect->valid()) {
+			return true;
+		}
+
+		if (null !== $reject) {
+			$reject($connect);
+		}
+
+		return false;
 	}
 
 	public function configure(Config $config): State {
