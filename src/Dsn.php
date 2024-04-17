@@ -21,10 +21,10 @@ final class Dsn {
 		$source = [];
 
 		if (str_contains($this->_dsn, '://')) {
-			$source = parse_url($this->_dsn);
+			$source = parse_url(str_replace(':///', '://', $this->_dsn));
 
 			if (!isset($source['scheme'])) {
-				return new Fail(Status::WrongDsnString, 'Incorrect Dsn string', __FILE__, __LINE__);
+				return new Fail(Status::WrongDsnString, 'Incorrect Dsn string: '.$this->_dsn, __FILE__, __LINE__);
 			}
 
 			if (!in_array($source['scheme'], ['mysql', 'mariadb', 'pgsql', 'sqlite'])) {
@@ -37,33 +37,15 @@ final class Dsn {
 			if ('sqlite' == $source['type']) {
 				if (isset($source['path'])) {
 					if (!isset($source['host'])) {
-						return new Fail(Status::WrongDsnString, 'Incorrect Dsn string', __FILE__, __LINE__);
+						return new Fail(Status::WrongDsnString, 'Incorrect Dsn string: '.$this->_dsn, __FILE__, __LINE__);
 					}
 
-					switch ($source['host']) {
-					case '~':
-						if ('cli' == PHP_SAPI) {
-							$source['dbname'] = '~'.$source['path'];
-						}
-						else {
-							$source['dbname'] = $_SERVER['DOCUMENT_ROOT'].$source['path'];
-						}
-
-						break;
-					case '..':
-						$source['dbname'] = dirname($_SERVER['SCRIPT_FILENAME']).'/..'.$source['path'];
-						break;
-					case '.':
-						$source['dbname'] = dirname($_SERVER['SCRIPT_FILENAME']).$source['path'];
-						break;
-					default:
-						if ('Windows' == PHP_OS_FAMILY) {
-							$source['dbname'] = $source['host'].':'.$source['path'];
-						}
-						else {
-							$source['dbname'] = '/'.$source['host'].$source['path'];
-						}
-					}
+					$source['dbname'] = match ($source['host']) {
+						'~' => ('cli' == PHP_SAPI) ? '~'.$source['path'] : $_SERVER['DOCUMENT_ROOT'].$source['path'],
+						'..' => dirname($_SERVER['SCRIPT_FILENAME']).'/..'.$source['path'],
+						'.' => dirname($_SERVER['SCRIPT_FILENAME']).$source['path'],
+						default => ('Windows' == PHP_OS_FAMILY) ? $source['host'].':'.$source['path'] : '/'.$source['host'].$source['path'],
+					};
 
 					unset($source['path'], $source['host']);
 				}
@@ -72,7 +54,7 @@ final class Dsn {
 					unset($source['host']);
 				}
 				else {
-					return new Fail(Status::WrongDsnString, 'Incorrect Dsn string', __FILE__, __LINE__);
+					return new Fail(Status::WrongDsnString, 'Incorrect Dsn string: '.$this->_dsn, __FILE__, __LINE__);
 				}
 
 				if (!isset($source['dbname'])) {
