@@ -21,12 +21,18 @@ abstract class Driver implements State {
 	}
 
 	public static function get(Connector $connector): State {
-		self::$_driver[$connector->type->value] ??= match ($connector::class) {
-			namespace\MySQL\Connector::class => new namespace\MySQL\Driver($connector),
-			namespace\SQLite\Connector::class => new namespace\SQLite\Driver($connector),
-			namespace\PgSQL\Connector::class => new namespace\PgSQL\Driver($connector),
-			namespace\Memcache\Connector::class => new namespace\Memcache\Driver($connector),
-			default => new Fail(Status::MaintenanceFreeConnection, 'Maintenance free connection type: '.$connector::class, __FILE__, __LINE__),
+		self::$_driver[$connector->type->value] ??= match ($connector->type) {
+			Type::MySQL,
+			Type::MariaDB  => new namespace\MySQL\Driver($connector),
+			Type::SQLite   => new namespace\SQLite\Driver($connector),
+			Type::PgSQL    => new namespace\PgSQL\Driver($connector),
+			Type::Memcache => new namespace\Memcache\Driver($connector),
+			default        => new Fail(
+				Status::MaintenanceFreeConnection,
+				'Maintenance free connection type: '.$connector::class,
+				__FILE__,
+				__LINE__-4
+			),
 		};
 
 		return self::$_driver[$connector->type->value];

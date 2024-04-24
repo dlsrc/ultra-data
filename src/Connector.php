@@ -69,12 +69,18 @@ abstract class Connector implements State {
 	}
 
 	private static function createConnector(Config $config): State {
-		return (match ($config::class) {
-			namespace\MySQL\Config::class => new namespace\MySQL\Connector($config),
-			namespace\PgSQL\Config::class => new namespace\PgSQL\Connector($config),
-			namespace\SQLite\Config::class => new namespace\SQLite\Connector($config),
-			namespace\Memcache\Config::class => new namespace\Memcache\Connector($config),
-			default => new Fail(Status::NoSuitableConnector, 'No suitable connector for '.$config::class, __FILE__, __LINE__),
+		return (match ($config->getType()) {
+			Type::MySQL,
+			Type::MariaDB  => new namespace\MySQL\Connector($config),
+			Type::PgSQL    => new namespace\PgSQL\Connector($config),
+			Type::SQLite   => new namespace\SQLite\Connector($config),
+			Type::Memcache => new namespace\Memcache\Connector($config),
+			default        => new Fail(
+				Status::NoSuitableConnector,
+				'No suitable connector for '.$config::class,
+				__FILE__,
+				__LINE__-4
+			),
 		})->commit(self::check(...));
 	}
 

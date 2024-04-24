@@ -43,7 +43,7 @@ abstract class Config implements Mutable, State {
 	protected function __construct(Source $source) {
 		$this->initialize();
 		$this->_property['name'] = $source->name;
-		$this->_property['type'] = '';//$source->type->value;
+		$this->_property['type'] = $source->type->value;
 	}
 
 	public static function get(Source $source): State {
@@ -75,5 +75,9 @@ abstract class Config implements Mutable, State {
 		}
 
 		return new Fail(Status::NoConfigurationByName, 'No configuration by name "'.$name.'"', __FILE__, __LINE__);
+	}
+
+	public function getType(): Type {
+		return Type::from($this->_property['type']);
 	}
 }
