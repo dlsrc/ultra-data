@@ -35,7 +35,7 @@ class Source implements State {
 	/**
 	 * Тип источника
 	 */
-	readonly public string $type;
+	readonly public Type $type;
 
 	/**
 	 * Получить интерфейс состояния источника данных из строки подключения к источнику данных.
@@ -75,7 +75,7 @@ class Source implements State {
 	private function __construct(array $options) {
 		$this->_option = $options;
 		$this->name = $this->makeName($options);
-		$this->type = $options['type'];
+		$this->type = Type::from($options['type']);
 	}
 
 	private function makeName(array $options): string {

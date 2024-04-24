@@ -43,24 +43,30 @@ abstract class Config implements Mutable, State {
 	protected function __construct(Source $source) {
 		$this->initialize();
 		$this->_property['name'] = $source->name;
-		$this->_property['type'] = $source->type;
+		$this->_property['type'] = '';//$source->type->value;
 	}
 
-	public static function get(Source $src): State {
-		if (isset(self::$_config[$src->name])) {
-			return self::$_config[$src->name];
+	public static function get(Source $source): State {
+		if (isset(self::$_config[$source->name])) {
+			return self::$_config[$source->name];
 		}
 
-		(self::$_config[$src->name] = match($src->type) {
-			'mysql',
-			'mariadb'  => new namespace\MySQL\Config($src),
-			'pgsql'    => new namespace\PgSQL\Config($src),
-			'sqlite'   => new namespace\SQLite\Config($src),
-			'memcache' => new namespace\Memcache\Config($src),
-			default    => new Fail(Status::NoConfigurationByType, 'No configuration for data source "'.$src->type.'"', __FILE__, __LINE__),
-		})->commit($src->configure(...));
+		(self::$_config[$source->name] = match($source->type) {
+			Type::MySQL,
+			Type::MariaDB  => new namespace\MySQL\Config($source),
+			Type::PgSQL    => new namespace\PgSQL\Config($source),
+			Type::SQLite   => new namespace\SQLite\Config($source),
+			Type::Memcache => new namespace\Memcache\Config($source),
+			default        => new Fail(
+								Status::NoConfigurationByType,
+								'No configuration for data source "'.$source->type->name.'"',
+								__FILE__,
+								__LINE__-4
+							),
+
+		})->commit($source->configure(...));
 		
-		return self::$_config[$src->name];
+		return self::$_config[$source->name];
 	}
 
 	public static function open(string $name): State {

@@ -41,7 +41,7 @@ abstract class Connector implements State {
 	/**
 	 * Тип источника
 	 */
-	readonly public string $type;
+	readonly public Type $type;
 
 	/**
 	* Состояние соединения, которое нужно поддерживать.
@@ -73,6 +73,7 @@ abstract class Connector implements State {
 			namespace\MySQL\Config::class => new namespace\MySQL\Connector($config),
 			namespace\PgSQL\Config::class => new namespace\PgSQL\Connector($config),
 			namespace\SQLite\Config::class => new namespace\SQLite\Connector($config),
+			namespace\Memcache\Config::class => new namespace\Memcache\Connector($config),
 			default => new Fail(Status::NoSuitableConnector, 'No suitable connector for '.$config::class, __FILE__, __LINE__),
 		})->commit(self::check(...));
 	}
@@ -89,7 +90,7 @@ abstract class Connector implements State {
 		$this->connect = $this->makeConnect($config);
 		$this->id      = $config->getConnectId();
 		$this->name    = $config->name;
-		$this->type    = $config->type;
+		$this->type    = Type::from($config->type);
 		$this->state   = $config->getStateId();
 		$this->setState($this->state);
 	}

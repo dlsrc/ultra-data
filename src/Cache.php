@@ -6,13 +6,7 @@
  */
 namespace Ultra\Data;
 
-class Cache extends Provider {
-	public readonly Hash $driver;
-
-	protected function setup(Driver $driver) {
-		$this->driver = $driver;
-	}
-
+class Cache extends Dictionary {
 	public function add(string $key, mixed $value, int $flag = 0, int $expire = 0): bool {
 		return $this->driver->addData($this->connector, $key, $value, $flag, $expire);
 	}

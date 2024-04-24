@@ -6,76 +6,18 @@
  */
 namespace Ultra\Data;
 
-use Throwable;
-use Ultra\Error;
-
-class Browser extends Provider {
-	public readonly SQL $driver;
-	public readonly bool $native;
-
-	protected function setup(Driver $driver) {
-		$this->driver = $driver;
-		$this->native = match($driver::class) {
-			namespace\MySQL\Driver::class => !in_array($this->connector->getConfig()->native, ['off', 'no', '0', 0]),
-			namespace\SQLite\Driver::class => true,
-			namespace\PgSQL\Driver::class => false,
-		};
-	}
-
+class Browser extends Storage {
+	/**
+	 * Обработать спецсимволы в строке
+	 */
 	public function esc(string $string): string {
 		return $this->driver->escape($this->connector, $string);
 	}
 
 	/**
-	* Подготовка соединения и запроса к выполнению.
-	*/
-	private function prepare(string $query, array $var): bool {
-//		$this->connector->correct($this->state); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		if (!$this->connector->checkState($this)) {
-			return false;
-		}
-
-		if (sizeof($var) > 0) {
-			$search  = [];
-			$replace = [];
-
-			foreach ($var as $key => $val) {
-				$search[]  = '{'.$key.'}';
-				
-				$replace[] = match (gettype($val)) {
-					'string' => $this->driver->escape($this->connector, $val),
-					'integer', 'double' => (string) $val,
-					'boolean' => (string) (int) $val,
-					'NULL' => 'NULL',
-					default => '',
-				};
-			}
-
-			$query = str_replace($search, $replace, $query);
-		}
-
-		try {
-			$this->driver->query($this->connector, $query);
-		}
-		catch (Throwable) {
-			Error::log($this->driver->error($this->connector).PHP_EOL.$query, Status::QueryFailed);
-			return false;
-		}
-
-		if (!$this->driver->isResult()) {
-			Error::log($this->driver->error($this->connector).PHP_EOL.$query, Status::QueryFailed);
-			///////////////////////////////////////////////////////////////////
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	* Вернуть результат SQL запроса в виде двумерного массива.
-	* Массивы первого и второго измерения имеют числовую индексацию.
-	*/
+	 * Вернуть результат SQL запроса в виде двумерного массива.
+	 * Массивы первого и второго измерения имеют числовую индексацию.
+	 */
 	public function rows(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -92,10 +34,10 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Вернуть результат SQL запроса в виде двумерного массива.
-	* Массивы первого измерения имеют числовую индексацию,
-	* индексы второго ассоциированы с именами столбцов, указанными в запросе.
-	*/
+	 * Вернуть результат SQL запроса в виде двумерного массива.
+	 * Массивы первого измерения имеют числовую индексацию,
+	 * индексы второго ассоциированы с именами столбцов, указанными в запросе
+	 */
 	public function assoc(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -112,9 +54,9 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Вернуть комбинацию двух полей в виде массива, при этом первое поле будет
-	* являться ключем массива, второе соответствующим значением.
-	*/
+	 * Вернуть комбинацию двух полей в виде массива, при этом первое поле будет
+	 * являться ключем массива, второе соответствующим значением.
+	 */
 	public function combine(string $query, array $value = [], bool $first_only = false): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -144,8 +86,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Вернуть колонку (список значений одного поля)
-	*/
+	 * Вернуть колонку (список значений одного поля)
+	 */
 	public function column(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -161,48 +103,36 @@ class Browser extends Provider {
 		return $data;
 	}
 
-	public function join(string $query, array $value = []): string {
-		if (!$data = $this->column($query, $value)) {
-			return '(NULL)';
-		}
-
-		if (!empty($data)) {
-			return '("'.implode('", "', $data).'")';
-		}
-
-		return '("0")';
-	}
-
 	/**
-	* Вернуть результат SQL запроса в виде трехмерного массива.
-	*
-	* SQL => SELECT f_1, f_2, ... f_n FROM t
-	*
-	* RETURN array(
-	*    
-	*   v_1 => array(
-	*       
-	*       0   => array(v_1, v_2_1, ... v_n_1),
-	*       1   => array(v_1, v_2_2, ... v_n_2),
-	*       2   => array(v_1, v_2_3, ... v_n_3),
-	*       ..........................................
-	*       n-1 => array(v_1, v_2_n, ... v_n_n)
-	*
-	*    )
-	*
-	*   v_2 => array(
-	*       
-	*       0   => array(v_2, v_2_1, ... v_n_1),
-	*       1   => array(v_2, v_2_2, ... v_n_2),
-	*       2   => array(v_2, v_2_3, ... v_n_3),
-	*       ..........................................
-	*       n-1 => array(v_2, v_2_n, ... v_n_n)
-	*
-	*    )
-	*
-	*    ...............................................
-	* )
-	*/
+	 * Вернуть результат SQL запроса в виде трехмерного массива.
+	 *
+	 * SQL => SELECT f_1, f_2, ... f_n FROM t
+	 *
+	 * RETURN array(
+	 *
+	 *   v_1 => array(
+	 *
+	 *     0   => array(v_1, v_2_1, ... v_n_1),
+	 *     1   => array(v_1, v_2_2, ... v_n_2),
+	 *     2   => array(v_1, v_2_3, ... v_n_3),
+	 *     ..........................................
+	 *     n-1 => array(v_1, v_2_n, ... v_n_n)
+	 * 
+	 *   )
+	 * 
+	 *   v_2 => array(
+	 *
+	 *     0   => array(v_2, v_2_1, ... v_n_1),
+	 *     1   => array(v_2, v_2_2, ... v_n_2),
+	 *     2   => array(v_2, v_2_3, ... v_n_3),
+	 *     ..........................................
+	 *     n-1 => array(v_2, v_2_n, ... v_n_n)
+	 * 
+	 *   )
+	 *
+	 *   ...............................................
+	 * )
+	 */
 	public function slice(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -221,8 +151,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* То же что и slice, но с ассоциативными именами ключей
-	*/
+	 * То же что и slice, но с ассоциативными именами ключей
+	 */
 	public function aslice(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -242,8 +172,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* То же что и slice, но ключевое значение удаляется из выборки
-	*/
+	 * То же что и slice, но ключевое значение удаляется из выборки
+	 */
 	public function shift(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -262,8 +192,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* То же что и shift, но с ассоциативными именами ключей
-	*/
+	 * То же что и shift, но с ассоциативными именами ключей
+	 */
 	public function ashift(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -282,8 +212,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Несколько колонок как срезы первого столбца
-	*/
+	 * Несколько колонок как срезы первого столбца
+	 */
 	public function columns(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -312,8 +242,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Несколько комбинированных колонок как срезы первого столбца
-	*/
+	 * Несколько комбинированных колонок как срезы первого столбца
+	 */
 	public function combines(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -348,12 +278,12 @@ class Browser extends Provider {
 
 
 	/**
-	* Вернуть результат SQL запроса в виде двумерного массива.
-	* Массивы первого измерения индексированы значением одного из столбцев
-	* выборки (соответственно значения в таком столбце должны быть уникальны,
-	* иначе будет возвращаться последняя строка, array_unique наоборот),
-	* индексы второго ассоциированы с порядком столбцов, указанных в запросе.
-	*/
+	 * Вернуть результат SQL запроса в виде двумерного массива.
+	 * Массивы первого измерения индексированы значением одного из столбцев
+	 * выборки (соответственно значения в таком столбце должны быть уникальны,
+	 * иначе будет возвращаться последняя строка, array_unique наоборот),
+	 * индексы второго ассоциированы с порядком столбцов, указанных в запросе.
+	 */
 	public function table(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -370,12 +300,12 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Вернуть результат SQL запроса в виде двумерного массива.
-	* Массивы первого измерения индексированы значением одного из столбцев
-	* выборки (соответственно значения в таком столбце должны быть уникальны,
-	* иначе будет возвращаться последняя строка, array_unique наоборот),
-	* индексы второго ассоциированы с именами столбцов, указанными в запросе.
-	*/
+	 * Вернуть результат SQL запроса в виде двумерного массива.
+	 * Массивы первого измерения индексированы значением одного из столбцев
+	 * выборки (соответственно значения в таком столбце должны быть уникальны,
+	 * иначе будет возвращаться последняя строка, array_unique наоборот),
+	 * индексы второго ассоциированы с именами столбцов, указанными в запросе.
+	 */
 	public function view(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -397,8 +327,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Вернуть массив результата SQL запроса (первую строку запроса)
-	*/
+	 * Вернуть массив результата SQL запроса (первую строку запроса)
+	 */
 	public function row(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
 			return [];
@@ -414,8 +344,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Вернуть единственный результат SQL запроса.
-	*/
+	 * Вернуть единственный результат SQL запроса.
+	 */
 	public function result(string $query, array $value = []): bool|int|float|string {
 		if (!$this->prepare($query, $value)) {
 			return '';
@@ -431,15 +361,15 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Выполнить SQL запрос.
-	*/
+	 * Выполнить SQL запрос.
+	 */
 	public function run(string $query, array $value = []): bool {
 		return $this->prepare($query, $value);
 	}
 
 	/**
-	* Выполнить SQL запрос, вернуть количество рядов затронутое запросом.
-	*/
+	 * Выполнить SQL запрос, вернуть количество рядов затронутое запросом.
+	 */
 	public function affect(string $query, array $value = []): int {
 		if (!$this->prepare($query, $value)) {
 			return 0;
@@ -449,8 +379,8 @@ class Browser extends Provider {
 	}
 
 	/**
-	* Получить текст ошибки
-	*/
+	 * Получить текст ошибки
+	 */
 	public function error(): string {
 		return $this->driver->error($this->connector);
 	}

@@ -27,12 +27,12 @@ final class Dsn {
 				return new Fail(Status::WrongDsnString, 'Incorrect Dsn string: '.$this->_dsn, __FILE__, __LINE__);
 			}
 
-			if (!in_array($source['scheme'], ['mysql', 'mariadb', 'pgsql', 'sqlite'])) {
-				return new Fail(Status::UnknownSourceType, 'Unknown source type: "'.$source['scheme'].'"', __FILE__, __LINE__);
-			}
-
-			$source['type'] = $source['scheme'];
+			$source['type'] = strtolower($source['scheme']);
 			unset($source['scheme']);
+
+			if (null == Type::tryFrom($source['type'])) {
+				return new Fail(Status::UnknownSourceType, 'Unknown source type: "'.$source['type'].'"', __FILE__, __LINE__);
+			}
 
 			if ('sqlite' == $source['type']) {
 				if (isset($source['path'])) {
@@ -95,6 +95,10 @@ final class Dsn {
 		else {
 			parse_str(implode('&', preg_split('/[;&\s]+/', $this->_dsn, -1, PREG_SPLIT_NO_EMPTY)), $source);
 
+			if (isset($source['type'])) {
+				$source['type'] = strtolower($source['type']);
+			}
+
 			if (!isset($source['type'])) {
 				if (!isset($source['port'])) {
 					return new Fail(Status::SourceTypeNotDefined, 'Source type not defined.', __FILE__, __LINE__);
@@ -110,6 +114,9 @@ final class Dsn {
 				default:
 					return new Fail(Status::SourceTypeNotDefined, 'Source type not defined.', __FILE__, __LINE__);
 				}
+			}
+			elseif (null == Type::tryFrom($source['type'])) {
+				return new Fail(Status::UnknownSourceType, 'Unknown source type: "'.$source['type'].'"', __FILE__, __LINE__);
 			}
 			elseif (!isset($source['port']) && 'sqlite' != $source['type']) {
 				switch ($source['type']) {
