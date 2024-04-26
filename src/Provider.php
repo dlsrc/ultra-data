@@ -44,27 +44,15 @@ abstract class Provider implements State {
 	}
 
 	private static function _make(Contract $contract, string $dsn): State {
-		$config = Source::get($dsn)->follow(Config::get(...));
-
-		if (!$config->valid()) {
-			return $config;
-		}
-
-		$connector = Connector::get($config);
-
-		if (!$connector->valid()) {
-			return $connector;
-		}
-
-		$driver = Driver::get($connector);
-
-		if (!$driver->valid()) {
-			return $driver;
+		$states = Source::get($dsn)->pipe(Config::get(...), Connector::get(...), Driver::get(...));
+		
+		if (!$states[0]->valid()) {
+			return $states[0];
 		}
 
 		return match ($contract) {
-			Contract::Cache   => new Cache($config, $connector, $driver),
-			Contract::Browser => new Browser($config, $connector, $driver),
+			Contract::Cache   => new Cache($states[1], $states[2], $states[3]),
+			Contract::Browser => new Browser($states[1], $states[2], $states[3]),
 		};
 	}
 }
