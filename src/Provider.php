@@ -17,19 +17,17 @@ abstract class Provider implements State {
 	private static array $_provider = [];
 
 	public readonly Connector $connector;
-	public readonly string $name;
 	public readonly array $state;
 
-	protected function __construct(Config $config, Connector $connector, Driver $driver, string $name) {
+	protected function __construct(Config $config, Connector $connector, Driver $driver) {
 		$this->connector = $connector;
-		$this->name      = $name;
 		$this->state     = $config->getStateId();
 		$this->setup($driver);
 	}
 
 	public static function get(Contract $contract, string $dsn): State {
 		$name = $contract->name.'::'.$dsn;
-		self::$_provider[$name] ??= self::_make($contract, $name, $dsn);
+		self::$_provider[$name] ??= self::_make($contract, $dsn);
 		return self::$_provider[$name];
 	}
 
@@ -45,7 +43,7 @@ abstract class Provider implements State {
 		return self::get($contract, $arguments[0]);
 	}
 
-	private static function _make(Contract $contract, string $name, string $dsn): State {
+	private static function _make(Contract $contract, string $dsn): State {
 		$config = Source::get($dsn)->follow(Config::get(...));
 
 		if (!$config->valid()) {
@@ -65,8 +63,8 @@ abstract class Provider implements State {
 		}
 
 		return match ($contract) {
-			Contract::Cache   => new Cache($config, $connector, $driver, $name),
-			Contract::Browser => new Browser($config, $connector, $driver, $name),
+			Contract::Cache   => new Cache($config, $connector, $driver),
+			Contract::Browser => new Browser($config, $connector, $driver),
 		};
 	}
 }
