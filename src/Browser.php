@@ -6,7 +6,12 @@
  */
 namespace Ultra\Data;
 
-class Browser extends Storage {
+use Ultra\Instance;
+use Ultra\State;
+
+class Browser extends Storage implements State {
+	use Instance;
+
 	/**
 	 * Обработать спецсимволы в строке
 	 */

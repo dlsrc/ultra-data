@@ -33,26 +33,32 @@ abstract class Provider implements State {
 
 	public static function __callStatic(string $name, array $arguments): State {
 		if (!$contract = Contract::getCaseByName($name)) {
-			return new Fail(Status::UnknownContractorName, 'Unknown contractor name: "'.$name.'"', __FILE__, __LINE__);
+			return new Fail(
+				Status::UnknownContractorName,
+				'Unknown contractor name: "'.$name.'"',
+				__FILE__,
+				__LINE__-4
+			);
 		}
 
 		if (!isset($arguments[0]) || !is_string($arguments[0])) {
-			return new Fail(Status::MissingArgumentDSN, 'Need DSN string argument to get contract: "'.$name.'", NULL given.', __FILE__, __LINE__);
+			return new Fail(
+				Status::MissingArgumentDSN,
+				'Need a DSN string argument to get the contract: "'.$name.'", NULL given.',
+				__FILE__,
+				__LINE__-4
+		);
 		}
 
 		return self::get($contract, $arguments[0]);
 	}
 
 	private static function _make(Contract $contract, string $dsn): State {
-		$states = Source::get($dsn)->pipe(Config::get(...), Connector::get(...), Driver::get(...));
-		
-		if (!$states[0]->valid()) {
-			return $states[0];
-		}
-
-		return match ($contract) {
-			Contract::Cache   => new Cache($states[1], $states[2], $states[3]),
-			Contract::Browser => new Browser($states[1], $states[2], $states[3]),
-		};
+		return Source::get($dsn)->pipe(Config::get(...), Connector::get(...), Driver::get(...))->commit(
+			fn(State $result) => match ($contract) {
+				Contract::Cache   => new Cache($result(1), $result(2), $result(3)),
+				Contract::Browser => new Browser($result(1), $result(2), $result(3)),
+			}
+		);
 	}
 }

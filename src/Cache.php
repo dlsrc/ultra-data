@@ -6,7 +6,12 @@
  */
 namespace Ultra\Data;
 
-class Cache extends Dictionary {
+use Ultra\Instance;
+use Ultra\State;
+
+class Cache extends Dictionary implements State {
+	use Instance;
+
 	public function add(string $key, mixed $value, int $flag = 0, int $expire = 0): bool {
 		return $this->driver->addData($this->connector, $key, $value, $flag, $expire);
 	}
@@ -31,4 +36,3 @@ class Cache extends Dictionary {
 		return $this->driver->flushData($this->connector, );
 	}
 }
-
