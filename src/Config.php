@@ -25,13 +25,13 @@ abstract class Config implements Mutable, State {
 	 */
 	abstract public function getProviderId(): string;
 	//abstract public function getContractId(): string;
-	
+
 	/**
 	 * Идентификатор соединения, — строка параметров,
 	 * которых достаточно для подключения к источнику данных.
 	 */
 	abstract public function getConnectId(): string;
-	
+
 	/**
 	 * Идентификатор состояния соединения, — строка параметров,
 	 * которые требуются для доступа к данным внупри источника.
@@ -65,7 +65,7 @@ abstract class Config implements Mutable, State {
 							),
 
 		})->commit($source->configure(...));
-		
+
 		return self::$_config[$source->name];
 	}
 

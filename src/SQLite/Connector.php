@@ -40,7 +40,7 @@ final class Connector extends Connect {
 			return false;
 		}
 
-		(new $state['extras']($this))->addFunctions();
+		new $state['extras']($this)->addFunctions();
 
 		return true;
 	}
