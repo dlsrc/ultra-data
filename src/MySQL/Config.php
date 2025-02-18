@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * (c) 2005-2024 Dmitry Lebedev <dl@adios.ru>
+ * (c) 2005-2025 Dmitry Lebedev <dl@adios.ru>
  * This source code is part of the Ultra data package.
  * Please see the LICENSE file for copyright and licensing information.
  */
@@ -32,6 +32,7 @@ final class Config extends DataConfig {
 		$this->_property['read_timeout']    = '';
 		// Использовать real_connect при подключении
 		$this->_property['real_connect']    = 'on';
+		// Возвращать данные полей числовых типов, как int и float.
 		$this->_property['native']          = 'on';
 
 		// Опции алиасы
