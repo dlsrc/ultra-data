@@ -10,7 +10,7 @@ abstract class SQL extends Driver {
 	protected object|bool $result;
 
 	abstract public function affected(Connector $connector): int;
-	abstract public function errno(Connector $connector): int ;
+	abstract public function errno(Connector $connector): int;
 	abstract public function error(Connector $connector): string;
 	abstract public function escape(Connector $connector, string $string): string;
 	abstract public function fetchArray(): array|null|false;

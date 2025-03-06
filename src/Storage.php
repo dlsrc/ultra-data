@@ -23,32 +23,20 @@ abstract class Storage extends Provider {
 	}
 
 	/**
-	* Подготовка соединения и запроса к выполнению.
-	*/
-	protected function prepare(string $query, array $var): bool {
-		if (!$this->connector->checkState($this)) {
-			return false;
+	 * Проверка готовности соединения к выполнению запроса
+	 */
+	protected function isValidState(): bool {
+		if ($this->connector->checkState($this)) {
+			return true;
 		}
 
-		if (sizeof($var) > 0) {
-			$search  = [];
-			$replace = [];
+		return false;
+	}
 
-			foreach ($var as $key => $val) {
-				$search[]  = '{'.$key.'}';
-				
-				$replace[] = match (gettype($val)) {
-					'string' => $this->driver->escape($this->connector, $val),
-					'integer', 'double' => (string) $val,
-					'boolean' => (string) (int) $val,
-					'NULL' => 'NULL',
-					default => '',
-				};
-			}
-
-			$query = str_replace($search, $replace, $query);
-		}
-
+	/**
+	 * Выполнение запроса
+	 */
+	protected function exec(string $query): bool {
 		try {
 			$this->driver->query($this->connector, $query);
 		}
@@ -59,7 +47,6 @@ abstract class Storage extends Provider {
 
 		if (!$this->driver->isResult()) {
 			Error::log($this->driver->error($this->connector).PHP_EOL.$query, Status::QueryFailed);
-			///////////////////////////////////////////////////////////////////
 			return false;
 		}
 

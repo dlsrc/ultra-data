@@ -13,6 +13,36 @@ class Browser extends Storage implements State {
 	use Instance;
 
 	/**
+	* Подготовка соединения и запроса к выполнению.
+	*/
+	protected function prepare(string $query, array $var): bool {
+		if (!$this->isValidState()) {
+			return false;
+		}
+
+		if (sizeof($var) > 0) {
+			$search  = [];
+			$replace = [];
+
+			foreach ($var as $key => $val) {
+				$search[]  = '{'.$key.'}';
+				
+				$replace[] = match (gettype($val)) {
+					'string' => $this->driver->escape($this->connector, $val),
+					'integer', 'double' => (string) $val,
+					'boolean' => (string) (int) $val,
+					'NULL' => 'NULL',
+					default => '',
+				};
+			}
+
+			$query = str_replace($search, $replace, $query);
+		}
+
+		return $this->exec($query);
+	}
+
+	/**
 	 * Обработать спецсимволы в строке
 	 */
 	public function esc(string $string): string {
@@ -247,7 +277,7 @@ class Browser extends Storage implements State {
 	}
 
 	/**
-	 * Несколько комбинированных колонок как срезы первого столбца
+	 * Несколько комбинированных колонок как срезы первого столбца.
 	 */
 	public function combines(string $query, array $value = []): array {
 		if (!$this->prepare($query, $value, true)) {
