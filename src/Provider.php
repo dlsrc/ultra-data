@@ -57,8 +57,9 @@ abstract class Provider implements State {
 	private static function _make(Contract $contract, string $dsn): State {
 		return Source::get($dsn)->pipe(Config::get(...), Connector::get(...), Driver::get(...))->commit(
 			fn(ResultList $result) => match ($contract) {
-				Contract::Cache   => new Cache($result(1), $result(2), $result(3)),
+				Contract::Navigator => new Navigator($result(1), $result(2), $result(3)),
 				Contract::Browser => new Browser($result(1), $result(2), $result(3)),
+				Contract::Cache => new Cache($result(1), $result(2), $result(3)),
 			}
 		);
 	}

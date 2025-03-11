@@ -13,6 +13,9 @@ enum Contract {
 
 	case Cache;
 	case Browser;
-//	case Holder;
+//	case Manager;
+//	case Master;
+	case Navigator;
+//	case Operator;
 //	case Transact;
 }
