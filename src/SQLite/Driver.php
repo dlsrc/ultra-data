@@ -8,6 +8,7 @@ namespace Ultra\Data\SQLite;
 
 use Ultra\Data\Connector;
 use Ultra\Data\SQL;
+use Ultra\Data\SQLMode;
 
 final class Driver extends SQL {
 	public function affected(Connector $connector): int {
@@ -26,6 +27,17 @@ final class Driver extends SQL {
 		return $connector->connect->escapeString($string);
 	}
 
+	public function fetchAll(SQLMode $mode = SQLMode::Num): array {
+		$mode = $this->getMode($mode);
+		$all = [];
+
+		while ($row = $this->result->fetchArray($mode)) {
+			$all[] = $row;
+		}
+
+		return $all;
+	}
+
 	public function fetchArray(): array|null|false {
 		return $this->result->fetchArray(SQLITE3_BOTH);
 	}
@@ -40,6 +52,14 @@ final class Driver extends SQL {
 
 	public function free(): void {
 		$this->result->finalize();
+	}
+
+	public function getMode(SQLMode $mode): int {
+		return match($mode) {
+			SQLMode::Assoc => SQLITE3_ASSOC,
+			SQLMode::Num => SQLITE3_NUM,
+			SQLMode::Both => SQLITE3_BOTH,
+		};
 	}
 
 	public function insertId(Connector $connector): int {

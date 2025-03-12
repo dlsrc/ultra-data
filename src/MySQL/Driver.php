@@ -8,6 +8,7 @@ namespace Ultra\Data\MySQL;
 
 use Ultra\Data\Connector;
 use Ultra\Data\SQL;
+use Ultra\Data\SQLMode;
 
 final class Driver extends SQL {
 	public function affected(Connector $connector): int {
@@ -26,6 +27,10 @@ final class Driver extends SQL {
 		return $connector->connect->real_escape_string($string);
 	}
 
+	public function fetchAll(SQLMode $mode = SQLMode::Num): array {
+		return $this->result->fetch_all($this->getMode($mode));
+	}
+
 	public function fetchArray(): array|null|false {
 		return $this->result->fetch_array();
 	}
@@ -40,6 +45,14 @@ final class Driver extends SQL {
 
 	public function free(): void {
 		$this->result->free();
+	}
+
+	public function getMode(SQLMode $mode): int {
+		return match($mode) {
+			SQLMode::Assoc => MYSQLI_ASSOC,
+			SQLMode::Num => MYSQLI_NUM,
+			SQLMode::Both => MYSQLI_BOTH,
+		};
 	}
 
 	public function insertId(Connector $connector): int {

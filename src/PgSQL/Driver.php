@@ -8,6 +8,7 @@ namespace Ultra\Data\PgSQL;
 
 use Ultra\Data\Connector;
 use Ultra\Data\SQL;
+use Ultra\Data\SQLMode;
 
 final class Driver extends SQL {
 	public function affected(Connector $connector): int {
@@ -34,6 +35,10 @@ final class Driver extends SQL {
 		return pg_escape_string($connector->connect, $string);
 	}
 
+	public function fetchAll(SQLMode $mode = SQLMode::Num): array {
+		return pg_fetch_all($this->result, $this->getMode($mode));
+	}
+
 	public function fetchArray(): array|null|false {
 		return pg_fetch_array($this->result);
 	}
@@ -48,6 +53,14 @@ final class Driver extends SQL {
 
 	public function free(): void {
 		pg_free_result($this->result);
+	}
+
+	public function getMode(SQLMode $mode): int {
+		return match($mode) {
+			SQLMode::Assoc => PGSQL_ASSOC,
+			SQLMode::Num => PGSQL_NUM,
+			SQLMode::Both => PGSQL_BOTH,
+		};
 	}
 
 	public function insertId(Connector $connector): int {

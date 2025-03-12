@@ -13,10 +13,12 @@ abstract class SQL extends Driver {
 	abstract public function errno(Connector $connector): int;
 	abstract public function error(Connector $connector): string;
 	abstract public function escape(Connector $connector, string $string): string;
+	abstract public function fetchAll(SQLMode $mode = SQLMode::Num): array;
 	abstract public function fetchArray(): array|null|false;
 	abstract public function fetchAssoc(): array|null|false;
 	abstract public function fetchRow(): array|null|false;
 	abstract public function free(): void;
+	abstract public function getMode(SQLMode $mode): int;
 	abstract public function insertId(Connector $connector): int;
 	abstract public function numFields(): int;
 	abstract public function numRows(): int;

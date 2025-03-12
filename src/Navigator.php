@@ -84,12 +84,7 @@ class Navigator extends Storage implements State {
 	 * Массивы первого и второго измерения имеют числовую индексацию.
 	 */
 	public function rows(): array {
-		$data = [];
-
-		while ($row = $this->driver->fetchRow()) {
-			$data[] = $row;
-		}
-
+		$data = $this->driver->fetchAll(SQLMode::Num);
 		$this->driver->free();
 		return $data;
 	}
@@ -100,12 +95,7 @@ class Navigator extends Storage implements State {
 	 * индексы второго ассоциированы с именами столбцов, указанными в запросе
 	 */
 	public function assoc(): array {
-		$data = [];
-
-		while ($row = $this->driver->fetchAssoc()) {
-			$data[] = $row;
-		}
-
+		$data = $this->driver->fetchAll(SQLMode::Assoc);
 		$this->driver->free();
 		return $data;
 	}
