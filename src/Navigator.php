@@ -28,8 +28,8 @@ class Navigator extends Storage implements State {
 		return false;
 	}
 
-	public function statement(string $statement): void {
-		$this->_query->statement($statement);
+	public function statement(string $statement, string $marker = ''): void {
+		$this->_query->statement($statement, $marker);
 	}
 
 	public function query(string $query): self|null {
