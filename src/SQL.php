@@ -16,6 +16,7 @@ abstract class SQL extends Driver {
 	abstract public function fetchAll(SQLMode $mode = SQLMode::Num): array;
 	abstract public function fetchArray(): array|null|false;
 	abstract public function fetchAssoc(): array|null|false;
+	abstract public function fetchColumn(int $column = 0): array;
 	abstract public function fetchRow(): array|null|false;
 	abstract public function free(): void;
 	abstract public function getMode(SQLMode $mode): int;

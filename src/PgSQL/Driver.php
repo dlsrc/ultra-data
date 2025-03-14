@@ -47,6 +47,10 @@ final class Driver extends SQL {
 		return pg_fetch_assoc($this->result);
 	}
 
+	public function fetchColumn(int $column = 0): array {
+		return pg_fetch_all_columns($this->result, $column);
+	}
+
 	public function fetchRow(): array|null|false {
 		return pg_fetch_row($this->result);
 	}

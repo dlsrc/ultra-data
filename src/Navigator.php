@@ -131,13 +131,8 @@ class Navigator extends Storage implements State {
 	/**
 	 * Вернуть колонку (список значений одного поля)
 	 */
-	public function column(): array {
-		$data = [];
-
-		while ($row = $this->driver->fetchRow()) {
-			$data[] = $row[0];
-		}
-
+	public function column(int $column = 0): array {
+		$data = $this->driver->fetchColumn($column);
 		$this->driver->free();
 		return $data;
 	}

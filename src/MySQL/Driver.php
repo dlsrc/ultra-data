@@ -39,6 +39,16 @@ final class Driver extends SQL {
 		return $this->result->fetch_assoc();
 	}
 
+	public function fetchColumn(int $column = 0): array {
+		$data = [];
+
+		while (false !== ($result = $this->result->fetch_column($column))) {
+			$data[] = $result;
+		}
+
+		return $data;
+	}
+
 	public function fetchRow(): array|null|false {
 		return $this->result->fetch_row();
 	}

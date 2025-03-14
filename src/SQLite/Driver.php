@@ -46,6 +46,24 @@ final class Driver extends SQL {
 		return $this->result->fetchArray(SQLITE3_ASSOC);
 	}
 
+	public function fetchColumn(int $column = 0): array {
+		if (!$row = $this->result->fetchArray(SQLITE3_NUM)) {
+			return [];
+		}
+
+		if (!array_key_exists($column, $row)) {
+			return [];
+		}
+
+		$data = [$row[$column]];
+
+		while ($row = $this->result->fetchArray(SQLITE3_NUM)) {
+			$data[] = $row[$column];
+		}
+
+		return $data;
+	}
+
 	public function fetchRow(): array|null|false {
 		return $this->result->fetchArray(SQLITE3_NUM);
 	}
