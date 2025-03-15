@@ -17,7 +17,12 @@ class Navigator extends Storage implements State {
 
 	protected function __construct(Config $config, Connector $connector, Driver $driver) {
 		parent::__construct($config, $connector, $driver);
-		$this->_query = new Query(fn($statement) => $this->driver->escape($this->connector, $statement));
+
+		$this->_query = new Query(
+			escape: fn($statement) => $this->driver->escape($this->connector, $statement),
+			booleans: $this->boolean_support,
+			quotes: $this->quotes,
+		);
 	}
 
 	protected function prepare(string $query): bool {

@@ -12,13 +12,15 @@ use Ultra\Error;
 abstract class Storage extends Provider {
 	public readonly SQL $driver;
 	public readonly bool $native;
+	public readonly bool $boolean_support;
+	public readonly string $quotes;
 
 	protected function setup(Driver $driver) {
 		$this->driver = $driver;
-		$this->native = match($driver::class) {
-			namespace\MySQL\Driver::class => !in_array($this->connector->getConfig()->native, ['off', 'no', '0', 0]),
-			namespace\SQLite\Driver::class => true,
-			namespace\PgSQL\Driver::class => false,
+		[$this->native, $this->boolean_support, $this->quotes] = match($driver::class) {
+			namespace\MySQL\Driver::class => [!in_array($this->connector->getConfig()->native, ['off', 'no', '0', 0]), false, '`'],
+			namespace\SQLite\Driver::class => [true, false, '`'],
+			namespace\PgSQL\Driver::class => [false, true, '"'],
 		};
 	}
 
