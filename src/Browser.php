@@ -176,9 +176,7 @@ class Browser extends Storage implements State {
 		$data = [];
 
 		while ($row = $this->driver->fetchRow()) {
-			$id = $row[0];
-			$data[$id] ??= [];
-			$data[$id][] = $row;
+			$data[$row[0]][] = $row;
 		}
 
 		$this->driver->free();
@@ -195,11 +193,13 @@ class Browser extends Storage implements State {
 
 		$data = [];
 
-		while ($row = $this->driver->fetchAssoc()) {
+		if ($row = $this->driver->fetchAssoc()) {
 			$column = array_key_first($row);
-			$id = $row[$column];
-			$data[$id] ??= [];
-			$data[$id][] = $row;
+			$data[$row[$column]][] = $row;
+
+			while ($row = $this->driver->fetchAssoc()) {
+				$data[$row[$column]][] = $row;
+			}
 		}
 
 		$this->driver->free();
@@ -217,8 +217,8 @@ class Browser extends Storage implements State {
 		$data = [];
 
 		while ($row = $this->driver->fetchRow()) {
-			$id = array_shift($row);
-			$data[$id] ??= [];
+			$id = $row[0];
+			unset($row[0]);
 			$data[$id][] = $row;
 		}
 
@@ -236,10 +236,17 @@ class Browser extends Storage implements State {
 
 		$data = [];
 
-		while ($row = $this->driver->fetchAssoc()) {
-			$id = array_shift($row);
-			$data[$id] ??= [];
+		if ($row = $this->driver->fetchAssoc()) {
+			$column = array_key_first($row);
+			$id = $row[$column];
+			unset($row[$column]);
 			$data[$id][] = $row;
+
+			while ($row = $this->driver->fetchAssoc()) {
+				$id = $row[$column];
+				unset($row[$column]);
+				$data[$id][] = $row;
+			}
 		}
 
 		$this->driver->free();
@@ -257,15 +264,11 @@ class Browser extends Storage implements State {
 		$data = [];
 
 		if ($row = $this->driver->fetchRow()) {
-			$data[$row[0]] ??= [];
-
 			for ($i=1; array_key_exists($i, $row); $i++) {
 				$data[$row[0]][] = $row[$i];
 			}
 
 			while ($row = $this->driver->fetchRow()) {
-				$data[$row[0]] ??= [];
-
 				for ($i=1; array_key_exists($i, $row); $i++) {
 					$data[$row[0]][] = $row[$i];
 				}
@@ -288,20 +291,16 @@ class Browser extends Storage implements State {
 
 		if ($row = $this->driver->fetchRow()) {
 			if (array_key_exists(2, $row)) {
-				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[2];
 
 				while ($row = $this->driver->fetchRow()) {
-					$data[$row[0]] ??= [];
 					$data[$row[0]][$row[1]] = $row[2];
 				}
 			}
 			elseif (array_key_exists(1, $row)) {
-				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[1];
 
 				while ($row = $this->driver->fetchRow()) {
-					$data[$row[0]] ??= [];
 					$data[$row[0]][$row[1]] = $row[1];
 				}
 			}

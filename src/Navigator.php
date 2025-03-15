@@ -110,12 +110,9 @@ class Navigator extends Storage implements State {
 
 		$data = [];
 
-		if (null !== ($last = array_key_last($all)) &&
-			array_key_exists($val, $all[0]) &&
-			array_key_exists($key, $all[0])
-		) {
-			for ($i = 0; $i <= $last; $i++) {
-				$data[$all[$i][$key]] = $all[$i][$val];
+		if ($this->_keysExists($all, $val, $key)) {
+			foreach ($all as $row) {
+				$data[$row[$key]] = $row[$val];
 			}
 		}
 
@@ -161,65 +158,76 @@ class Navigator extends Storage implements State {
 	 *   ...............................................
 	 * )
 	 */
-	public function slice(): array {
+	public function slice(int $key = 0): array {
+		$all = $this->driver->fetchAll(SQLMode::Num);
+		$this->driver->free();
+
 		$data = [];
 
-		while ($row = $this->driver->fetchRow()) {
-			$id = $row[0];
-			$data[$id] ??= [];
-			$data[$id][] = $row;
+		if ($this->_keysExists($all, $key)) {
+			foreach ($all as $row) {
+				$data[$row[$key]][] = $row;
+			}
 		}
 
-		$this->driver->free();
 		return $data;
 	}
 
 	/**
 	 * То же что и slice, но с ассоциативными именами ключей
 	 */
-	public function aslice(): array {
+	public function aslice(string $name = ''): array {
+		$all = $this->driver->fetchAll(SQLMode::Assoc);
+		$this->driver->free();
+
 		$data = [];
 
-		while ($row = $this->driver->fetchAssoc()) {
-			$column = array_key_first($row);
-			$id = $row[$column];
-			$data[$id] ??= [];
-			$data[$id][] = $row;
+		if ($name = $this->_fieldNameExists($all, $name)) {
+			foreach ($all as $row) {
+				$data[$row[$name]][] = $row;
+			}	
 		}
 
-		$this->driver->free();
 		return $data;
 	}
 
 	/**
 	 * То же что и slice, но ключевое значение удаляется из выборки
 	 */
-	public function shift(): array {
+	public function shift(int $key = 0): array {
+		$all = $this->driver->fetchAll(SQLMode::Num);
+		$this->driver->free();
+
 		$data = [];
 
-		while ($row = $this->driver->fetchRow()) {
-			$id = array_shift($row);
-			$data[$id] ??= [];
-			$data[$id][] = $row;
+		if ($this->_keysExists($all, $key)) {
+			foreach ($all as $row) {
+				$id = $row[$key];
+				unset($row[$key]);
+				$data[$id][] = $row;
+			}
 		}
 
-		$this->driver->free();
 		return $data;
 	}
 
 	/**
 	 * То же что и shift, но с ассоциативными именами ключей
 	 */
-	public function ashift(): array {
+	public function ashift(string $name): array {
+		$all = $this->driver->fetchAll(SQLMode::Assoc);
+		$this->driver->free();
+
 		$data = [];
 
-		while ($row = $this->driver->fetchAssoc()) {
-			$id = array_shift($row);
-			$data[$id] ??= [];
-			$data[$id][] = $row;
+		if ($name = $this->_fieldNameExists($all, $name)) {
+			foreach ($all as $row) {
+				$id = $row[$name];
+				unset($row[$name]);
+				$data[$id][] = $row;
+			}
 		}
 
-		$this->driver->free();
 		return $data;
 	}
 
@@ -230,15 +238,11 @@ class Navigator extends Storage implements State {
 		$data = [];
 
 		if ($row = $this->driver->fetchRow()) {
-			$data[$row[0]] ??= [];
-
 			for ($i=1; array_key_exists($i, $row); $i++) {
 				$data[$row[0]][] = $row[$i];
 			}
 
 			while ($row = $this->driver->fetchRow()) {
-				$data[$row[0]] ??= [];
-
 				for ($i=1; array_key_exists($i, $row); $i++) {
 					$data[$row[0]][] = $row[$i];
 				}
@@ -257,20 +261,16 @@ class Navigator extends Storage implements State {
 
 		if ($row = $this->driver->fetchRow()) {
 			if (array_key_exists(2, $row)) {
-				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[2];
 
 				while ($row = $this->driver->fetchRow()) {
-					$data[$row[0]] ??= [];
 					$data[$row[0]][$row[1]] = $row[2];
 				}
 			}
 			elseif (array_key_exists(1, $row)) {
-				$data[$row[0]] ??= [];
 				$data[$row[0]][$row[1]] = $row[1];
 
 				while ($row = $this->driver->fetchRow()) {
-					$data[$row[0]] ??= [];
 					$data[$row[0]][$row[1]] = $row[1];
 				}
 			}
@@ -288,14 +288,18 @@ class Navigator extends Storage implements State {
 	 * иначе будет возвращаться последняя строка, array_unique наоборот),
 	 * индексы второго ассоциированы с порядком столбцов, указанных в запросе.
 	 */
-	public function table(): array {
+	public function table(int $key = 0): array {
+		$all = $this->driver->fetchAll(SQLMode::Num);
+		$this->driver->free();
+
 		$data = [];
 
-		while ($row = $this->driver->fetchRow()) {
-			$data[$row[0]] = $row;
+		if ($this->_keysExists($all, $key)) {
+			foreach ($all as $row) {
+				$data[$row[$key]] = $row;
+			}
 		}
 
-		$this->driver->free();
 		return $data;
 	}
 
@@ -306,19 +310,18 @@ class Navigator extends Storage implements State {
 	 * иначе будет возвращаться последняя строка, array_unique наоборот),
 	 * индексы второго ассоциированы с именами столбцов, указанными в запросе.
 	 */
-	public function view(): array {
+	public function view(string $name = ''): array {
+		$all = $this->driver->fetchAll(SQLMode::Assoc);
+		$this->driver->free();
+
 		$data = [];
 
-		if ($row = $this->driver->fetchAssoc()) {
-			$column = array_key_first($row);
-			$data[$row[$column]] = $row;
-
-			while ($row = $this->driver->fetchAssoc()) {
-				$data[$row[$column]] = $row;
-			}
+		if ($name = $this->_fieldNameExists($all, $name)) {
+			foreach ($all as $row) {
+				$data[$row[$name]] = $row;
+			}	
 		}
 
-		$this->driver->free();
 		return $data;
 	}
 
@@ -367,5 +370,35 @@ class Navigator extends Storage implements State {
 	 */
 	public function error(): string {
 		return $this->driver->error($this->connector);
+	}
+
+	private function _keysExists(array &$data, int ...$keys): bool {
+		if (!isset($data[0])) {
+			return false;
+		}
+
+		foreach ($keys as $key) {
+			if (!array_key_exists($key, $data[0])) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private function _fieldNameExists(array &$data, string $name): string|false {
+		if (!isset($data[0])) {
+			return false;
+		}
+
+		if ('' == $name) {
+			return array_key_first($data[0]);
+		}
+		
+		if (array_key_exists($name, $data[0])) {
+			return $name;
+		}
+
+		return false;
 	}
 }
