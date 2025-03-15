@@ -104,27 +104,21 @@ class Navigator extends Storage implements State {
 	 * Вернуть комбинацию двух полей в виде массива, при этом первое поле будет
 	 * являться ключем массива, второе соответствующим значением.
 	 */
-	public function combine(bool $first_only = false): array {
+	public function combine(int $val = 1, int $key = 0): array {
+		$all = $this->driver->fetchAll(SQLMode::Num);
+		$this->driver->free();
+
 		$data = [];
 
-		if ($row = $this->driver->fetchRow()) {
-			if (!$first_only && array_key_exists(1, $row)) {
-				$data[$row[0]] = $row[1];
-
-				while ($row = $this->driver->fetchRow()) {
-					$data[$row[0]] = $row[1];
-				}
-			}
-			else {
-				$data[$row[0]] = $row[0];
-
-				while ($row = $this->driver->fetchRow()) {
-					$data[$row[0]] = $row[0];
-				}
+		if (null !== ($last = array_key_last($all)) &&
+			array_key_exists($val, $all[0]) &&
+			array_key_exists($key, $all[0])
+		) {
+			for ($i = 0; $i <= $last; $i++) {
+				$data[$all[$i][$key]] = $all[$i][$val];
 			}
 		}
 
-		$this->driver->free();
 		return $data;
 	}
 
