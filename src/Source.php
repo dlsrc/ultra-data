@@ -7,6 +7,7 @@
 namespace Ultra\Data;
 
 use Closure;
+use Ultra\Fail;
 use Ultra\State;
 use Ultra\Instance;
 use Ultra\Pipe;
@@ -42,7 +43,7 @@ class Source implements Pipeline, State {
 	/**
 	 * Получить интерфейс состояния источника данных из строки подключения к источнику данных.
 	 */
-	public static function get(string $dsn): State & Pipeline {
+	public static function get(string $dsn): (State & Pipeline)|Fail {
 		self::$_source[$dsn] ??= new Dsn($dsn)->parse()->commit(self::_make(...));
 		return self::$_source[$dsn];
 	}
