@@ -17,7 +17,23 @@ final class Connector extends Connect {
 		if (!$this->isConnect()) {
 			return false;
 		}
-		
+
+		if ($this->connect->character_set_name() != $state['charset']) {
+			try {
+				$this->connect->set_charset($this->_real_charset($state['charset']));
+			}
+			catch (mysqli_sql_exception $e) {
+				$this->error = new Fail(
+					Status::SetCharsetNameFailure,
+					'Mysql Error #'.$e->getCode().'. '.$e->getMessage(),
+					__FILE__,
+					__LINE__-5
+				);
+
+				return false;
+			}
+		}
+
 		try {
 			$this->connect->select_db($state['database']);
 		}
@@ -111,7 +127,7 @@ final class Connector extends Connect {
 		}
 
 		try {
-			$mysqli->options(MYSQLI_SET_CHARSET_NAME, $config->charset);
+			$mysqli->options(MYSQLI_SET_CHARSET_NAME, $this->_real_charset($config->charset));
 		}
 		catch (mysqli_sql_exception $e) {
 			$this->error = new Fail(
@@ -121,7 +137,7 @@ final class Connector extends Connect {
 				__LINE__-5
 			);
 		}
-		
+
 		try {
 			if (!in_array($config->native, ['off', 'no', '0', 0])) {
 				$mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
@@ -176,5 +192,12 @@ final class Connector extends Connect {
 		}
 
 		return $mysqli;
+	}
+
+	private function _real_charset(string $charset): string {
+		return match ($charset) {
+			'utf8mb3' => 'utf8',
+			default => $charset
+		};
 	}
 }

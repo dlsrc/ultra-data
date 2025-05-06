@@ -1,6 +1,6 @@
 {
     "name": "ultra/data",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "type": "library",
     "description": "This package is part of the Ultra library for working with data sources.",
     "license": "MIT",

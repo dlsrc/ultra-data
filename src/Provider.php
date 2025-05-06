@@ -48,7 +48,7 @@ abstract class Provider implements State {
 				'Need a DSN string argument to get the contract: "'.$name.'", NULL given.',
 				__FILE__,
 				__LINE__-4
-		);
+			);
 		}
 
 		return self::get($contract, $arguments[0]);
