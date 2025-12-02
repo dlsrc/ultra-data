@@ -43,7 +43,7 @@ class Source implements Pipeline, State {
 	/**
 	 * Получить интерфейс состояния источника данных из строки подключения к источнику данных.
 	 */
-	public static function get(string $dsn): (State & Pipeline)|Fail {
+	public static function get(string $dsn): (State & Pipeline)|(State & Fail) {
 		self::$_source[$dsn] ??= new Dsn($dsn)->parse()->commit(self::_make(...));
 		return self::$_source[$dsn];
 	}
