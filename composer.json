@@ -1,6 +1,6 @@
 {
     "name": "ultra/data",
-    "version": "2.4.1",
+    "version": "2.5.0",
     "type": "library",
     "description": "This package is part of the Ultra library for working with data sources.",
     "license": "MIT",
@@ -24,8 +24,8 @@
     },
     "require": {
         "php": ">=8.4",
-        "ultra/result": "^1.4.0",
-        "ultra/core": "^2.0.1",
-        "ultra/data-query": "^1.0.0"
+        "ultra/result": "^2.1.0",
+        "ultra/core": "^2.1.0",
+        "ultra/data-query": "^1.1.0"
     }
 }
